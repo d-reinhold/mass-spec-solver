@@ -1,0 +1,7 @@
+---
+applications:
+  - name: chemsack
+    instances: 6
+    memory: 64MB
+    buildpack: staticfile_buildpack
+    path: public
