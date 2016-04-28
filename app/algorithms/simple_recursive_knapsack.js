@@ -1,3 +1,12 @@
+const ElementalMassHelper = require('helpers/elemental_mass_helper');
+
+function normalizeCoefs(coefs, charges) {
+  return coefs.map((coef, i) => {
+    const weight = ElementalMassHelper.elements[coef] * 100000 || parseInt(coef, 10);
+    return charges[i] ? weight + ElementalMassHelper.electron * -100000 * charges[i] : weight;
+  });
+}
+
 function recursiveSolve(coefs, ranges, desiredSum, sum, params, solutions, MAX_ERROR, MAX_SUM) {
   if (coefs.length === 0) {
     if (Math.abs(sum - desiredSum) < MAX_ERROR) {
@@ -11,10 +20,10 @@ function recursiveSolve(coefs, ranges, desiredSum, sum, params, solutions, MAX_E
 }
 
 const SimpleRecursiveKnapsack = {
-  solve(coefs, ranges, desiredSum, MAX_ERROR) {
+  solve(coefs, ranges, charges, desiredSum, MAX_ERROR) {
     let solutions = [];
     const start = Date.now();
-    recursiveSolve(coefs, ranges, desiredSum, 0, [], solutions, MAX_ERROR, MAX_ERROR + desiredSum);
+    recursiveSolve(normalizeCoefs(coefs, charges), ranges, desiredSum, 0, [], solutions, MAX_ERROR, MAX_ERROR + desiredSum);
     const totalTime = Date.now() - start;
     console.log('Computation took ' + totalTime + 'ms');
     return solutions;

@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Knapsack with Chemicals!",
   "dependencies": {
+    "lodash.range": "^3.1.4",
     "pui-css-alignment": "^4.0.8",
     "pui-css-forms": "^4.0.8",
     "pui-css-typography": "^4.0.8",
