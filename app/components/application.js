@@ -12,8 +12,8 @@ class Application extends React.Component {
     this.state = {
       coefs: urlParams[0] || [],
       ranges: urlParams[1] || [],
-      desiredSum: urlParams[2] || 0,
-      maxError: urlParams[3] || 2000,
+      desiredSum: urlParams[2] || '0',
+      maxError: urlParams[3] || '.01',
       charges: urlParams[4] || [],
       solutions: [],
       saving: false
@@ -22,7 +22,7 @@ class Application extends React.Component {
 
   updateRoute = () => {
     const {coefs, ranges, desiredSum, maxError, charges} = this.state;
-    history.pushState(null, null, `?coefs=${JSON.stringify(coefs)}&ranges=${JSON.stringify(ranges)}&desiredSum=${desiredSum}&maxError=${maxError}&charges=${JSON.stringify(charges)}`);
+    history.pushState(null, null, `?coefs=${JSON.stringify(coefs)}&ranges=${JSON.stringify(ranges)}&desiredSum=${desiredSum}&maxError=${JSON.stringify(maxError)}&charges=${JSON.stringify(charges)}`);
   };
 
   solve = () => {
@@ -77,8 +77,12 @@ class Application extends React.Component {
     this.setState({charges: newCharges}, this.updateRoute.bind(this));
   };
 
+  updateMaxError = (e) => {
+    this.setState({maxError: e.target.value}, this.updateRoute.bind(this));
+  };
+
   render() {
-    const {coefs, ranges, desiredSum, solutions, saving, charges} = this.state;
+    const {coefs, ranges, desiredSum, maxError, solutions, saving, charges} = this.state;
     const numCombinations = ranges.map(([min, max]) => max - min).reduce((val, product) => val * product, 1);
     const coeffInputs = coefs.map((c, i) => {
       const [min, max] = ranges[i];
@@ -88,15 +92,15 @@ class Application extends React.Component {
       });
       return (
         <div className="form-group row" key={i}>
-          <Input label="Fragment" className="col-xs-8" placeholder="Enter a fragment" value={c} onChange={this.updateCoeff.bind(this, i)}/>
+          <Input label="Fragment, Element or Mass (amu)" className="col-xs-8" placeholder="Enter a fragment" value={c} onChange={this.updateCoeff.bind(this, i)}/>
           <div className="col-xs-3 form-group">
             <label>Charge</label>
             <select className="form-control" value={charges[i]} onChange={this.updateCharge.bind(this, i)}>
               {chargeOptions}
             </select>
           </div>
-          <Input label="Min" className="col-xs-5" value={min} onChange={this.updateRange.bind(this, i, 0)}/>
-          <Input label="Max" className="col-xs-5" value={max} onChange={this.updateRange.bind(this, i, 1)}/>
+          <Input label="Min" className="col-xs-3" value={min} onChange={this.updateRange.bind(this, i, 0)}/>
+          <Input label="Max" className="col-xs-3" value={max} onChange={this.updateRange.bind(this, i, 1)}/>
           <a href="javascript:void(0)" className="col-xs-2 ptxxl" onClick={this.removeCoeff.bind(this, i)}><Icon name="close"/></a>
         </div>
       );
@@ -106,14 +110,17 @@ class Application extends React.Component {
       <form className="paxl">
         {coeffInputs}
         <div className="form-group row mtxl">
-          <div className="col-xs-6">
-            <Input label="Desired Sum" className="row" value={desiredSum} onChange={this.updateDesiredSum}/>
+          <div className="col-xs-8">
+            <div className="row">
+              <Input label="Desired Sum" className="col-xs-12" value={desiredSum} onChange={this.updateDesiredSum}/>
+              <Input label="Max Error" className="col-xs-12" value={maxError} onChange={this.updateMaxError}/>
+            </div>
             <div className="mtl row">
               <HighlightButton onClick={this.addCoeff.bind(this)} type="button">Add a Fragment</HighlightButton>
               <HighlightButton onClick={this.solve.bind(this)} type="button" className="mlm" disabled={saving}>Solve!</HighlightButton>
             </div>
           </div>
-          <p className="col-xs-18 ptxxl txt-c">There are {numCombinations} combinations.</p>
+          <p className="col-xs-16 ptxxl txt-l">There are {numCombinations} possible combinations to search.</p>
         </div>
         {solutions.length > 0 &&
           <div className="row">
