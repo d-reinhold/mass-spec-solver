@@ -27,13 +27,8 @@ class Application extends React.Component {
 
   solve = () => {
     const {coefs, ranges, charges, desiredSum, maxError} = this.state;
-    this.setState({saving: true});
-    const solutions = SimpleRecursiveKnapsack.solve(coefs, ranges, charges, desiredSum, maxError);
-    console.log('There were ' + solutions.length + ' solutions:');
-    console.log(solutions.map(s => s.params + ' ' + s.sum));
+    const solutions = SimpleRecursiveKnapsack.solve(coefs, ranges, charges, parseFloat(desiredSum, 10), parseFloat(maxError, 0));
     this.setState({solutions});
-    console.log('maxError', maxError);
-    this.setState({saving: false});
   };
 
   addCoeff = () => {

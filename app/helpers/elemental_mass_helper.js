@@ -1,5 +1,9 @@
 const ElementalMassHelper = {
   electron: 0.000548597,
+  fragments: {
+    Py: 79.04220,
+    OAC: 59.01330
+  },
   elements: {
     H: 1.007825,
     He: 4.002603,
