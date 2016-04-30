@@ -1,5 +1,62 @@
-@import '../../node_modules/pui-css-variables-and-mixins/pui-variables';
+$primary-color: #00A598;
+
+.chemsack-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .main-inputs {
+    min-width: 600px;
+    display: flex;
+    flex-direction: column;
+
+    .search {
+
+    }
+  }
+
+  .fragments {
+    min-width: 800px;
+    .fragment {
+      .action-icon {
+        color: $primary-color;
+      }
+      .action-icon.disabled {
+        color: gray;
+      }
+
+      &.example-enter {
+        opacity: 0.01;
+      }
+
+      &.example-enter.example-enter-active {
+        opacity: 1;
+        transition: opacity 2s ease-in;
+      }
+
+      &.example-leave {
+        opacity: 1;
+      }
+
+      &.example-leave.example-leave-active {
+        opacity: 0.01;
+        transition: opacity 2s ease-in;
+      }
+    }
+  }
+}
+
+
 
 .form-group {
-  margin-bottom: 0px;
+  margin-bottom: 5px;
+}
+
+button.btn.btn-highlight {
+  background-color: $primary-color;
+}
+
+p.combinations {
+  display: inline-block;
+  font-size: 12px;
 }

@@ -1,5 +1,4 @@
 const webpack = require('webpack');
-const production = require('pui-react-tools/webpack/production');
 const path = require('path');
 const ExtractTextWebpackPlugin = require('extract-text-webpack-plugin');
 
@@ -9,10 +8,7 @@ module.exports = {
       entry: {
         application: './app/runtime/start.js'
       },
-      externals: {
-        react: 'React',
-        'react-dom': 'ReactDOM'
-      },
+      externals: null,
       module: {
         loaders: [
           {test: [/\.svg(\?|$)/, /\.png(\?|$)/, /\.jpg(\?|$)/, /\.eot(\?|$)/, /\.ttf(\?|$)/, /\.woff2?(\?|$)/], include: /node_modules/, loader: 'file?name=[name]-[hash].[ext]'},

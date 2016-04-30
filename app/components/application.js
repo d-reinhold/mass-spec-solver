@@ -3,20 +3,22 @@ const {Icon} = require('pui-react-iconography');
 const {Input} = require('pui-react-inputs');
 const {HighlightButton} = require('pui-react-buttons');
 const SimpleRecursiveKnapsack = require('algorithms/simple_recursive_knapsack');
+const VelocityTransitionGroup = require('helpers/velocity_transition_group');
 const range = require('lodash.range');
+
 
 class Application extends React.Component {
   constructor(props, context) {
     super(props, context);
     const urlParams = location.search.slice(1).split('&').map(val => val && JSON.parse(decodeURIComponent(val.split('=')[1]) || '""'));
     this.state = {
-      coefs: urlParams[0] || [],
-      ranges: urlParams[1] || [],
+      coefs: urlParams[0] || [{id: 0, value: ''}],
+      ranges: urlParams[1] || [[0, 5]],
+      charges: urlParams[4] || [0],
       desiredSum: urlParams[2] || '0',
       maxError: urlParams[3] || '.01',
-      charges: urlParams[4] || [],
       solutions: [],
-      saving: false
+      solving: false
     };
   }
 
@@ -27,16 +29,19 @@ class Application extends React.Component {
 
   solve = () => {
     const {coefs, ranges, charges, desiredSum, maxError} = this.state;
-    const solutions = SimpleRecursiveKnapsack.solve(coefs, ranges, charges, parseFloat(desiredSum, 10), parseFloat(maxError, 0));
-    this.setState({solutions});
+    this.setState({solving: true});
+    setTimeout(() => {
+      const solutions = SimpleRecursiveKnapsack.solve(coefs.map(c => c.value), ranges, charges, parseFloat(desiredSum, 10), parseFloat(maxError, 0));
+      this.setState({solutions, solving: false});
+    });
   };
 
   addCoeff = () => {
     const {coefs, ranges, charges} = this.state;
     this.setState({
-      coefs: coefs.concat(''),
-      ranges: ranges.concat([[0, 5]]),
-      charges: charges.concat([0])
+      coefs: [{id: Math.random(), value: ''}].concat(coefs),
+      ranges: [[0, 5]].concat(ranges),
+      charges: [0].concat(charges)
     }, this.updateRoute.bind(this));
   };
 
@@ -56,7 +61,7 @@ class Application extends React.Component {
 
   updateCoeff = (i, e) => {
     let newcoefs = this.state.coefs.slice(0);
-    newcoefs[i] = e.target.value;
+    newcoefs[i].value = e.target.value;
     this.setState({coefs: newcoefs}, this.updateRoute.bind(this));
   };
 
@@ -77,57 +82,80 @@ class Application extends React.Component {
   };
 
   render() {
-    const {coefs, ranges, desiredSum, maxError, solutions, saving, charges} = this.state;
+    const {coefs, ranges, desiredSum, maxError, solutions, solving, charges} = this.state;
     const numCombinations = ranges.map(([min, max]) => max - min).reduce((val, product) => val * product, 1);
-    const coeffInputs = coefs.map((c, i) => {
+    let coeffInputs = coefs.map((c, i) => {
       const [min, max] = ranges[i];
       const chargeOptions = range(8, -9).map(charge => {
         const chargeLabel = charge > 0 ? `+${charge}` : charge;
         return <option value={charge} key={charge}>{chargeLabel}</option>;
       });
+      let actionIcon, actionIconProps = {href: 'javascript:void(0)', className: 'action-icon col-xs-2 ptxxl'};
+      if (i === 0 && coefs.every(c => c.value)) {
+        actionIconProps.onClick = this.addCoeff.bind(this, i);
+        actionIcon = <a {...actionIconProps}><Icon name="plus-circle" size="h3"/></a>;
+      } else {
+        actionIcon = <a {...actionIconProps} onClick={this.removeCoeff.bind(this, i)}><Icon name="close" size="h3"/></a>;
+      }
       return (
-        <div className="form-group row" key={i}>
-          <Input label="Fragment, Element or Mass (amu)" className="col-xs-8" placeholder="Enter a fragment" value={c} onChange={this.updateCoeff.bind(this, i)}/>
-          <div className="col-xs-3 form-group">
-            <label>Charge</label>
-            <select className="form-control" value={charges[i]} onChange={this.updateCharge.bind(this, i)}>
-              {chargeOptions}
-            </select>
+        <div className="fragment" key={c.id}>
+          <div className="form-group row">
+            <Input label="Fragment, Element or Mass (amu)" className="col-xs-10" placeholder="Enter a fragment" value={c.value} onChange={this.updateCoeff.bind(this, i)} autoFocus={i===0}/>
+            <div className="col-xs-4 form-group">
+              <label>Charge</label>
+              <select className="form-control" value={charges[i]} onChange={this.updateCharge.bind(this, i)}>
+                {chargeOptions}
+              </select>
+            </div>
+            <Input label="Min" className="col-xs-4" value={min} onChange={this.updateRange.bind(this, i, 0)}/>
+            <Input label="Max" className="col-xs-4" value={max} onChange={this.updateRange.bind(this, i, 1)}/>
+            {actionIcon}
           </div>
-          <Input label="Min" className="col-xs-3" value={min} onChange={this.updateRange.bind(this, i, 0)}/>
-          <Input label="Max" className="col-xs-3" value={max} onChange={this.updateRange.bind(this, i, 1)}/>
-          <a href="javascript:void(0)" className="col-xs-2 ptxxl" onClick={this.removeCoeff.bind(this, i)}><Icon name="close"/></a>
         </div>
       );
     });
 
     return (
-      <form className="paxl">
-        {coeffInputs}
-        <div className="form-group row mtxl">
-          <div className="col-xs-8">
-            <div className="row">
-              <Input label="Desired Sum" className="col-xs-12" value={desiredSum} onChange={this.updateDesiredSum}/>
-              <Input label="Max Error" className="col-xs-12" value={maxError} onChange={this.updateMaxError}/>
-            </div>
-            <div className="mtl row">
-              <HighlightButton onClick={this.addCoeff.bind(this)} type="button">Add a Fragment</HighlightButton>
-              <HighlightButton onClick={this.solve.bind(this)} type="button" className="mlm" disabled={saving}>Solve!</HighlightButton>
-            </div>
+      <form className="paxl chemsack-app">
+        <h1>Mass Spec Solutions</h1>
+        <div className="main-inputs">
+          <div className="search form-group row">
+            <div className="col-xs-5"></div>
+            <Input label="Desired Sum" className="col-xs-9" value={desiredSum} onChange={this.updateDesiredSum}/>
+            <Input label="Max Error" className="col-xs-5" value={maxError} onChange={this.updateMaxError}/>
+            <div className="col-xs-5"></div>
           </div>
-          <p className="col-xs-16 ptxxl txt-l">There are {numCombinations} possible combinations to search.</p>
+          <div className="buttons mvl row">
+            <div className="col-xs-8"></div>
+            <HighlightButton onClick={this.solve.bind(this)} type="button" className="mlxl phxxl" disabled={solving}>{solving ? 'Solving' : 'Solve!'}</HighlightButton>
+            <p className="mlxl combinations">{numCombinations} combinations</p>
+          </div>
         </div>
-        {solutions.length > 0 &&
-          <div className="row">
-            <h2>Solutions</h2>
-            <h4>{solutions.length === 1 ? 'There is 1 solution.' : `There are ${solutions.length} solutions.`}</h4>
-            <ul>
-              {solutions.map((solution, i) => (
-                <li key={i}>{JSON.stringify(solution.params) + '. sum:' + solution.sum + '. Diff: ' + (Math.abs(solution.sum - desiredSum))}</li>
-              ))}
-            </ul>
-          </div>
-        }
+        <div className="solutions">
+          {solutions.length > 0 &&
+            <div className="row">
+              <h2>Solutions</h2>
+              <h4>{solutions.length === 1 ? 'There is 1 solution.' : `There are ${solutions.length} solutions.`}</h4>
+              <ul>
+                {solutions.map((solution, i) => (
+                  <li key={i}>
+                    <label>Coefficients:</label>
+                    <ul>{solution.params.map((param, j) => <li key={param}>{`${param}${coefs[j]}`}</li>)}</ul>
+                    <label>Sum:</label>
+                    <span>{solution.sum}</span>
+                    <label>Diff:</label>
+                    <span>{Math.abs(solution.sum - desiredSum)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          }
+        </div>
+        <div className="fragments">
+          <VelocityTransitionGroup transitionName="slide-forward" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+            {coeffInputs}
+          </VelocityTransitionGroup>
+        </div>
       </form>
     );
   }
