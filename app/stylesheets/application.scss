@@ -1,12 +1,12 @@
 $primary-color: #00A598;
 
 .chemsack-app {
+  min-width: 300px;
   display: flex;
   flex-direction: column;
   align-items: center;
 
   .main-inputs {
-    min-width: 600px;
     display: flex;
     flex-direction: column;
 
@@ -16,8 +16,18 @@ $primary-color: #00A598;
   }
 
   .fragments {
-    min-width: 800px;
     .fragment {
+      .shadow-text {
+        position: absolute;
+        top: 40px;
+        right: 20px;
+        z-index: 100;
+        color: lighten(gray, 20%);
+
+        &.invalid {
+          color: lighten(red, 35%);
+        }
+      }
       .action-icon {
         color: $primary-color;
       }

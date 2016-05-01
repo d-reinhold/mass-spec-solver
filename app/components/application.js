@@ -2,9 +2,30 @@ const React = require('react');
 const {Icon} = require('pui-react-iconography');
 const {Input} = require('pui-react-inputs');
 const {HighlightButton} = require('pui-react-buttons');
+const {Tooltip} = require('pui-react-tooltip');
+const {OverlayTrigger} = require('pui-react-overlay-trigger');
 const SimpleRecursiveKnapsack = require('algorithms/simple_recursive_knapsack');
 const VelocityTransitionGroup = require('helpers/velocity_transition_group');
+const ElementalMassHelper = require('helpers/elemental_mass_helper');
 const range = require('lodash.range');
+
+
+function normalizeCoef(fragment, charge) {
+  let weight = ElementalMassHelper.fragments[fragment];
+  if (!weight) {
+    if (fragment.match(/(\d+)/g) && fragment.match(/(\d+)/g)[0] === fragment) {
+      weight = parseFloat(fragment, 10);
+    } else {
+      weight = fragment.split(/([A-Z]?[^A-Z]*)/g).filter(e => !!e).map(e => {
+        let [element, count] = e.split(/(\d+)/g);
+        count = parseInt(count, 10) || 1;
+        weight = ElementalMassHelper.elements[element];
+        return element ? weight * count : ElementalMassHelper.fragments[element];
+      }).reduce((w, sum) => w + sum, 0);
+    }
+  }
+  return charge ? weight - ElementalMassHelper.electron * charge : weight;
+}
 
 
 class Application extends React.Component {
@@ -31,7 +52,7 @@ class Application extends React.Component {
     const {coefs, ranges, charges, desiredSum, maxError} = this.state;
     this.setState({solving: true});
     setTimeout(() => {
-      const solutions = SimpleRecursiveKnapsack.solve(coefs.map(c => c.value), ranges, charges, parseFloat(desiredSum, 10), parseFloat(maxError, 0));
+      const solutions = SimpleRecursiveKnapsack.solve(coefs.map((c, i) => normalizeCoef(c.value, charges[i])), ranges, parseFloat(desiredSum, 10), parseFloat(maxError, 0));
       this.setState({solutions, solving: false});
     });
   };
@@ -85,39 +106,44 @@ class Application extends React.Component {
     const {coefs, ranges, desiredSum, maxError, solutions, solving, charges} = this.state;
     const numCombinations = ranges.map(([min, max]) => max - min).reduce((val, product) => val * product, 1);
     let coeffInputs = coefs.map((c, i) => {
+      const weight = normalizeCoef(c.value, charges[i]).toPrecision(9);
       const [min, max] = ranges[i];
       const chargeOptions = range(8, -9).map(charge => {
         const chargeLabel = charge > 0 ? `+${charge}` : charge;
         return <option value={charge} key={charge}>{chargeLabel}</option>;
       });
-      let actionIcon, actionIconProps = {href: 'javascript:void(0)', className: 'action-icon col-xs-2 ptxxl'};
-      if (i === 0 && coefs.every(c => c.value)) {
-        actionIconProps.onClick = this.addCoeff.bind(this, i);
-        actionIcon = <a {...actionIconProps}><Icon name="plus-circle" size="h3"/></a>;
-      } else {
-        actionIcon = <a {...actionIconProps} onClick={this.removeCoeff.bind(this, i)}><Icon name="close" size="h3"/></a>;
-      }
+
       return (
         <div className="fragment" key={c.id}>
           <div className="form-group row">
-            <Input label="Fragment, Element or Mass (amu)" className="col-xs-10" placeholder="Enter a fragment" value={c.value} onChange={this.updateCoeff.bind(this, i)} autoFocus={i===0}/>
-            <div className="col-xs-4 form-group">
+            <div className="form-group col-xs-13">
+              <span className={`shadow-text ${isNaN(weight) || parseInt(weight,10) === 0 ? 'invalid' : ''}`}>{weight}</span>
+              <label>Fragment, Element or Mass (amu)</label>
+              <input className="form-control" placeholder="Enter a fragment" value={c.value} onChange={this.updateCoeff.bind(this, i)} autoFocus={i===0}/>
+            </div>
+            <div className="col-xs-3 form-group">
               <label>Charge</label>
               <select className="form-control" value={charges[i]} onChange={this.updateCharge.bind(this, i)}>
                 {chargeOptions}
               </select>
             </div>
-            <Input label="Min" className="col-xs-4" value={min} onChange={this.updateRange.bind(this, i, 0)}/>
-            <Input label="Max" className="col-xs-4" value={max} onChange={this.updateRange.bind(this, i, 1)}/>
-            {actionIcon}
+            <Input label="Min" className="col-xs-3" value={min} onChange={this.updateRange.bind(this, i, 0)}/>
+            <Input label="Max" className="col-xs-3" value={max} onChange={this.updateRange.bind(this, i, 1)}/>
+            <a href="javascript:void(0)" className="action-icon col-xs-2 ptxxl" onClick={this.removeCoeff.bind(this, i)}>
+              <OverlayTrigger placement="top" overlay={<Tooltip>Remove this Fragment</Tooltip>}>
+                <Icon name="close" size="h3"/>
+              </OverlayTrigger>
+            </a>
           </div>
         </div>
       );
     });
 
+    const solveDisabled = solving || !coefs.every(c => c.value) || parseInt(desiredSum, 10) === 0;
+
     return (
       <form className="paxl chemsack-app">
-        <h1>Mass Spec Solutions</h1>
+        <h1>Mass Spec Solver</h1>
         <div className="main-inputs">
           <div className="search form-group row">
             <div className="col-xs-5"></div>
@@ -127,7 +153,7 @@ class Application extends React.Component {
           </div>
           <div className="buttons mvl row">
             <div className="col-xs-8"></div>
-            <HighlightButton onClick={this.solve.bind(this)} type="button" className="mlxl phxxl" disabled={solving}>{solving ? 'Solving' : 'Solve!'}</HighlightButton>
+            <HighlightButton onClick={this.solve.bind(this)} type="button" className="mlxl phxxl" disabled={solveDisabled}>{solving ? 'Solving' : 'Solve!'}</HighlightButton>
             <p className="mlxl combinations">{numCombinations} combinations</p>
           </div>
         </div>
@@ -140,7 +166,7 @@ class Application extends React.Component {
                 {solutions.map((solution, i) => (
                   <li key={i}>
                     <label>Coefficients:</label>
-                    <ul>{solution.params.map((param, j) => <li key={param}>{`${param}${coefs[j]}`}</li>)}</ul>
+                    <ul>{solution.params.map((param, j) => <li key={param}>{`${param}${coefs[j].value}`}</li>)}</ul>
                     <label>Sum:</label>
                     <span>{solution.sum}</span>
                     <label>Diff:</label>
@@ -153,6 +179,16 @@ class Application extends React.Component {
         </div>
         <div className="fragments">
           <VelocityTransitionGroup transitionName="slide-forward" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+            <div className="fragment" key="9999">
+              <div className="row">
+                <div className="col-xs-22"></div>
+                <a href="javascript:void(0)" className="action-icon col-xs-2 ptxxl" onClick={this.addCoeff}>
+                  <OverlayTrigger placement="top" overlay={<Tooltip>Add a Fragment</Tooltip>}>
+                    <Icon name="plus-circle" size="h3"/>
+                  </OverlayTrigger>
+                </a>
+              </div>
+            </div>
             {coeffInputs}
           </VelocityTransitionGroup>
         </div>
