@@ -151,7 +151,7 @@ class Application extends React.Component {
             <Input label="Max Error" className="col-xs-5" value={maxError} onChange={this.updateMaxError}/>
             <div className="col-xs-5"></div>
           </div>
-          <div className="buttons mvl row">
+          <div className="buttons mtl row">
             <div className="col-xs-8"></div>
             <HighlightButton onClick={this.solve.bind(this)} type="button" className="mlxl phxxl" disabled={solveDisabled}>{solving ? 'Solving' : 'Solve!'}</HighlightButton>
             <p className="mlxl combinations">{numCombinations} combinations</p>

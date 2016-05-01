@@ -1,5 +1,5 @@
 {
-  "name": "ChemSack",
+  "name": "Mass Spec Solver",
   "version": "0.0.1",
   "description": "Knapsack with Chemicals!",
   "dependencies": {
@@ -76,12 +76,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/d-reinhold/chemsack.git"
+    "url": "https://github.com/d-reinhold/mass-spec-solver.git"
   },
   "author": "Dominick Reinhold",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/d-reinhold/chemsack/issues"
+    "url": "https://github.com/d-reinhold/mass-spec-solver/issues"
   },
-  "homepage": "https://github.com/d-reinhold/chemsack"
+  "homepage": "https://github.com/d-reinhold/mass-spec-solver"
 }

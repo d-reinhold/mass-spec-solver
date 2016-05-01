@@ -1,7 +1,7 @@
 ---
 applications:
-  - name: chemsack
+  - name: mass-spec-solver
     instances: 6
-    memory: 64MB
+    memory: 10MB
     buildpack: staticfile_buildpack
     path: public
