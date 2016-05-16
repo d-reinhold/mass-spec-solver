@@ -15,6 +15,18 @@ $primary-color: #00A598;
     }
   }
 
+  .solutions {
+    font-size: 18px;
+    width: 50%;
+    h4 {
+      display: inline-block;
+    }
+    ul {padding: 0;}
+    li {
+      list-style: none;
+    }
+  }
+
   .fragments {
     .fragment {
       .shadow-text {

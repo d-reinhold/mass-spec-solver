@@ -38,7 +38,7 @@ class Application extends React.Component {
       charges: urlParams[4] || [0],
       desiredSum: urlParams[2] || '0',
       maxError: urlParams[3] || '.01',
-      solutions: [],
+      solutions: null,
       solving: false
     };
   }
@@ -102,6 +102,10 @@ class Application extends React.Component {
     this.setState({maxError: e.target.value}, this.updateRoute.bind(this));
   };
 
+  clearSolutions = () => {
+    this.setState({solutions: null});
+  };
+
   render() {
     const {coefs, ranges, desiredSum, maxError, solutions, solving, charges} = this.state;
     const numCombinations = ranges.map(([min, max]) => max - min).reduce((val, product) => val * product, 1);
@@ -158,21 +162,40 @@ class Application extends React.Component {
           </div>
         </div>
         <div className="solutions">
-          {solutions.length > 0 &&
+          {solutions &&
             <div className="row">
-              <h2>Solutions</h2>
               <h4>{solutions.length === 1 ? 'There is 1 solution.' : `There are ${solutions.length} solutions.`}</h4>
+              <a onClick={this.clearSolutions.bind(this)} className="mlm" href="javascript:void(0)">Clear</a>
+              <div className="row">
+                <div className="col-md-14">Compound</div>
+                <div className="col-md-6">Exact Mass</div>
+                <div className="col-md-2">Error</div>
+              </div>
               <ul>
-                {solutions.map((solution, i) => (
-                  <li key={i}>
-                    <label>Coefficients:</label>
-                    <ul>{solution.params.map((param, j) => <li key={param}>{`${param}${coefs[j].value}`}</li>)}</ul>
-                    <label>Sum:</label>
-                    <span>{solution.sum}</span>
-                    <label>Diff:</label>
-                    <span>{Math.abs(solution.sum - desiredSum)}</span>
-                  </li>
-                ))}
+                {solutions.sort(s => Math.abs(s.sum - desiredSum)).map(solution => {
+                  return (
+                    <li key={solution.sum} className="row mtm">
+                      <div className="col-md-14">
+                        {
+                          solution.params
+                            .filter(param => param)
+                            .map((param, j) => {
+                               const formula = coefs[j].value.split('').map((char, charIndex) => {
+                                 return isFinite(char) ? <sub key={charIndex}>{char}</sub> : <span key={charIndex}>{char}</span>;
+                               });
+                               return <span className="mlxs" key={coefs[j].value}>({formula})<sub>{param}</sub></span>;
+                             })
+                        }
+                      </div>
+                      <div className="col-md-6">
+                        {solution.sum}
+                      </div>
+                      <div className="col-md-2">
+                        {((1 - solution.sum / desiredSum) * 100).toPrecision(3)}%
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           }
