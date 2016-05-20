@@ -1,7 +1,7 @@
 ---
 applications:
   - name: mass-spec-solver
-    instances: 6
+    instances: 1
     memory: 10MB
     buildpack: staticfile_buildpack
     path: public

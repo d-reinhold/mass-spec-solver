@@ -1,6 +1,6 @@
 $primary-color: #00A598;
 
-.chemsack-app {
+.mass-spec-solver {
   min-width: 300px;
   display: flex;
   flex-direction: column;
@@ -9,10 +9,6 @@ $primary-color: #00A598;
   .main-inputs {
     display: flex;
     flex-direction: column;
-
-    .search {
-
-    }
   }
 
   .solutions {
@@ -66,19 +62,17 @@ $primary-color: #00A598;
       }
     }
   }
-}
 
+  .form-group {
+    margin-bottom: 5px;
+  }
 
+  button.btn.btn-highlight {
+    background-color: $primary-color;
+  }
 
-.form-group {
-  margin-bottom: 5px;
-}
-
-button.btn.btn-highlight {
-  background-color: $primary-color;
-}
-
-p.combinations {
-  display: inline-block;
-  font-size: 12px;
+  p.combinations {
+    display: inline-block;
+    font-size: 12px;
+  }
 }

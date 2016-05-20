@@ -146,7 +146,7 @@ class Application extends React.Component {
     const solveDisabled = solving || !coefs.every(c => c.value) || parseInt(desiredSum, 10) === 0;
 
     return (
-      <form className="paxl chemsack-app">
+      <form className="paxl mass-spec-solver">
         <h1>Mass Spec Solver</h1>
         <div className="main-inputs">
           <div className="search form-group row">

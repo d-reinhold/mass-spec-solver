@@ -6,8 +6,4 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const Application = require('components/application');
 
-global.Chemsack = {
-  start() {
-    ReactDOM.render(<Application />, root);
-  }
-};
+ReactDOM.render(<Application/>, root);
