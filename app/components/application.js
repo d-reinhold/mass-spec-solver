@@ -52,7 +52,12 @@ class Application extends React.Component {
     const {coefs, ranges, charges, desiredSum, maxError} = this.state;
     this.setState({solving: true});
     setTimeout(() => {
-      const solutions = SimpleRecursiveKnapsack.solve(coefs.map((c, i) => normalizeCoef(c.value, charges[i])), ranges, parseFloat(desiredSum, 10), parseFloat(maxError, 0));
+      const solutions = SimpleRecursiveKnapsack.solve(
+        coefs.map((c, i) => normalizeCoef(c.value, parseInt(charges[i], 10))),
+        ranges.map(([min, max]) => [parseInt(min, 10), parseInt(max, 10)]),
+        parseFloat(desiredSum, 10),
+        parseFloat(maxError, 0)
+      );
       this.setState({solutions, solving: false});
     });
   };
@@ -188,7 +193,7 @@ class Application extends React.Component {
                         }
                       </div>
                       <div className="col-md-6">
-                        {solution.sum}
+                        {solution.sum.toFixed(4)}
                       </div>
                       <div className="col-md-2">
                         {((1 - solution.sum / desiredSum) * 100).toPrecision(3)}%
