@@ -4,7 +4,7 @@ function recursiveSolve(coefs, ranges, desiredSum, sum, params, solutions, maxEr
       solutions.push({params: params, sum: sum});
     }
   } else if (sum < maxSum) {
-    for (var param = ranges[0][0]; param < ranges[0][1]; param++) {
+    for (var param = ranges[0][0]; param <= ranges[0][1]; param++) {
       recursiveSolve(coefs.slice(1), ranges.slice(1), desiredSum, sum + param * coefs[0], params.concat([param]), solutions, maxError, maxSum);
     }
   }
