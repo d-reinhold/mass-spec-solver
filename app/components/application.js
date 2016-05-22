@@ -114,6 +114,7 @@ class Application extends React.Component {
   render() {
     const {coefs, ranges, desiredSum, maxError, solutions, solving, charges} = this.state;
     const numCombinations = ranges.map(([min, max]) => max - min).reduce((val, product) => val * product, 1);
+    let solveDisabled = false;
     let coeffInputs = coefs.map((c, i) => {
       const weight = normalizeCoef(c.value, charges[i]).toPrecision(9);
       const [min, max] = ranges[i];
@@ -122,11 +123,16 @@ class Application extends React.Component {
         return <option value={charge} key={charge}>{chargeLabel}</option>;
       });
 
+      const weightInvalid = isNaN(weight) || parseInt(weight,10) === 0;
+      solveDisabled = solveDisabled || weightInvalid;
+
       return (
         <div className="fragment" key={c.id}>
           <div className="form-group row">
             <div className="form-group col-xs-13">
-              <span className={`shadow-text ${isNaN(weight) || parseInt(weight,10) === 0 ? 'invalid' : ''}`}>{weight}</span>
+              <span className={`shadow-text ${weightInvalid ? 'invalid' : ''}`}>
+                {weightInvalid ? <Icon name="question-circle-o" size="h3"/> : weight}
+              </span>
               <label>Fragment, Element or Mass (amu)</label>
               <input className="form-control" placeholder="Enter a fragment" value={c.value} onChange={this.updateCoeff.bind(this, i)} autoFocus={i===0}/>
             </div>
@@ -148,7 +154,7 @@ class Application extends React.Component {
       );
     });
 
-    const solveDisabled = solving || !coefs.every(c => c.value) || parseInt(desiredSum, 10) === 0;
+    solveDisabled = solveDisabled || solving || !coefs.every(c => c.value) || parseInt(desiredSum, 10) === 0;
 
     return (
       <form className="paxl mass-spec-solver">
