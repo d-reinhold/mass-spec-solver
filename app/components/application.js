@@ -10,13 +10,13 @@ const ElementalMassHelper = require('helpers/elemental_mass_helper');
 const range = require('lodash.range');
 
 
-function normalizeCoef(fragment, charge) {
-  let weight = ElementalMassHelper.fragments[fragment];
+function computeWeight({coef, charge}) {
+  let weight = ElementalMassHelper.fragments[coef];
   if (!weight) {
-    if (fragment.match(/(\d+)/g) && fragment.match(/(\d+)/g)[0] === fragment) {
-      weight = parseFloat(fragment, 10);
+    if (coef.match(/(\d+)/g) && coef.match(/(\d+)/g)[0] === coef) {
+      weight = parseFloat(coef, 10);
     } else {
-      weight = fragment.split(/([A-Z]?[^A-Z]*)/g).filter(e => !!e).map(e => {
+      weight = coef.split(/([A-Z]?[^A-Z]*)/g).filter(e => !!e).map(e => {
         let [element, count] = e.split(/(\d+)/g);
         count = parseInt(count, 10) || 1;
         weight = ElementalMassHelper.elements[element];
@@ -24,87 +24,92 @@ function normalizeCoef(fragment, charge) {
       }).reduce((w, sum) => w + sum, 0);
     }
   }
-  return charge ? weight - ElementalMassHelper.electron * charge : weight;
+  return (charge === 0 ? weight : weight - ElementalMassHelper.electron * charge).toPrecision(9);
 }
 
+function emptyRow() {
+  return {
+    id: Math.random(),
+    coef: '',
+    range: {min: 0, max: 5},
+    charge: 0,
+    weight: null
+  };
+}
+
+function parseNumeric(value) {
+  return value.replace(/[^0-9.]+/g, '');
+}
 
 class Application extends React.Component {
   constructor(props, context) {
     super(props, context);
     const urlParams = location.search.slice(1).split('&').map(val => val && JSON.parse(decodeURIComponent(val.split('=')[1]) || '""'));
     this.state = {
-      coefs: urlParams[0] || [{id: 0, value: ''}],
-      ranges: urlParams[1] || [[0, 5]],
-      charges: urlParams[4] || [0],
-      desiredSum: urlParams[2] || '0',
-      maxError: urlParams[3] || '.01',
+      desiredSum: urlParams[0] || 0,
+      maxError: urlParams[1] || 0.01,
+      rows: urlParams[2] || [emptyRow()],
+      solutionRows: null,
       solutions: null,
       solving: false
     };
   }
 
   updateRoute = () => {
-    const {coefs, ranges, desiredSum, maxError, charges} = this.state;
-    history.pushState(null, null, `?coefs=${JSON.stringify(coefs)}&ranges=${JSON.stringify(ranges)}&desiredSum=${desiredSum}&maxError=${JSON.stringify(maxError)}&charges=${JSON.stringify(charges)}`);
+    const {desiredSum, maxError, rows} = this.state;
+    history.pushState(null, null, `?desiredSum=${JSON.stringify(desiredSum)}&maxError=${JSON.stringify(maxError)}&rows=${JSON.stringify(rows)}`);
   };
 
   solve = () => {
-    const {coefs, ranges, charges, desiredSum, maxError} = this.state;
+    const {desiredSum, maxError, rows} = this.state;
     this.setState({solving: true});
     setTimeout(() => {
-      const solutions = SimpleRecursiveKnapsack.solve(
-        coefs.map((c, i) => normalizeCoef(c.value, parseInt(charges[i], 10))),
-        ranges.map(([min, max]) => [parseInt(min, 10), parseInt(max, 10)]),
-        parseFloat(desiredSum, 10),
-        parseFloat(maxError, 0)
-      );
-      this.setState({solutions, solving: false});
+      this.setState({
+        solutions: SimpleRecursiveKnapsack.solve(rows, parseFloat(desiredSum), parseFloat(maxError)),
+        solutionRows: rows.slice(0),
+        solving: false
+      });
     });
   };
 
-  addCoeff = () => {
-    const {coefs, ranges, charges} = this.state;
+  addRow = () => {
     this.setState({
-      coefs: [{id: Math.random(), value: ''}].concat(coefs),
-      ranges: [[0, 5]].concat(ranges),
-      charges: [0].concat(charges)
+      rows: [emptyRow()].concat(this.state.rows)
     }, this.updateRoute.bind(this));
   };
 
-  removeCoeff = (i) => {
-    let newcoefs = this.state.coefs.slice(0);
-    let newRanges = this.state.ranges.slice(0);
-    let newCharges = this.state.charges.slice(0);
-    newcoefs.splice(i, 1);
-    newRanges.splice(i, 1);
-    newCharges.splice(i, 1);
-    this.setState({coefs: newcoefs, ranges: newRanges, charges: newCharges}, this.updateRoute.bind(this));
+  removeRow = (i) => {
+    let newRows = this.state.rows.slice(0);
+    newRows.splice(i, 1);
+    this.setState({rows: newRows}, this.updateRoute.bind(this));
   };
 
   updateDesiredSum = (e) => {
-    this.setState({desiredSum: e.target.value}, this.updateRoute.bind(this));
-  };
-
-  updateCoeff = (i, e) => {
-    let newcoefs = this.state.coefs.slice(0);
-    newcoefs[i].value = e.target.value;
-    this.setState({coefs: newcoefs}, this.updateRoute.bind(this));
-  };
-
-  updateRange = (i, type, e) => {
-    let newRanges = this.state.ranges.slice(0);
-    newRanges[i][type] = e.target.value;
-    this.setState({ranges: newRanges}, this.updateRoute.bind(this));
-  };
-
-  updateCharge = (i, e) => {
-    let newCharges = this.state.charges.slice(0);
-    newCharges[i] = e.target.value;
-    this.setState({charges: newCharges}, this.updateRoute.bind(this));
+    this.setState({desiredSum: parseNumeric(e.target.value)}, this.updateRoute.bind(this));
   };
 
   updateMaxError = (e) => {
-    this.setState({maxError: e.target.value}, this.updateRoute.bind(this));
+    this.setState({maxError: parseNumeric(e.target.value)}, this.updateRoute.bind(this));
+  };
+
+  updateCoef = (i, e) => {
+    let newRows = this.state.rows.slice(0);
+    newRows[i].coef = e.target.value;
+    newRows[i].weight = computeWeight(newRows[i]);
+    this.setState({rows: newRows}, this.updateRoute.bind(this));
+  };
+
+  updateRange = (i, type, e) => {
+    let newRows = this.state.rows.slice(0);
+    newRows[i].range[type] = parseNumeric(e.target.value);
+    this.setState({rows: newRows}, this.updateRoute.bind(this));
+  };
+
+  updateCharge = (i, e) => {
+    let newRows = this.state.rows.slice(0);
+    newRows[i].charge = parseInt(e.target.value, 10);
+    newRows[i].weight = computeWeight(newRows[i]);
+    this.setState({rows: newRows}, this.updateRoute.bind(this));
   };
 
   clearSolutions = () => {
@@ -112,39 +117,37 @@ class Application extends React.Component {
   };
 
   render() {
-    const {coefs, ranges, desiredSum, maxError, solutions, solving, charges} = this.state;
-    const numCombinations = ranges.map(([min, max]) => max - min).reduce((val, product) => val * product, 1);
-    let solveDisabled = false;
-    let coeffInputs = coefs.map((c, i) => {
-      const weight = normalizeCoef(c.value, charges[i]).toPrecision(9);
-      const [min, max] = ranges[i];
+    const {desiredSum, maxError, rows, solutions, solutionRows, solving} = this.state;
+    const numCombinations = rows.map(row => row.range.max - row.range.min).reduce((val, product) => val * product, 1);
+    let solveDisabled = solving || rows.length === 0 || !rows.every(row => row.weight) || desiredSum === 0 || desiredSum === '' || maxError === 0 || maxError === '';
+    let coefInputs = rows.map((row, rowIndex) => {
       const chargeOptions = range(8, -9).map(charge => {
         const chargeLabel = charge > 0 ? `+${charge}` : charge;
         return <option value={charge} key={charge}>{chargeLabel}</option>;
       });
 
-      const weightInvalid = isNaN(weight) || parseInt(weight,10) === 0;
+      const weightInvalid = isNaN(row.weight) || row.weight === 0;
       solveDisabled = solveDisabled || weightInvalid;
 
       return (
-        <div className="fragment" key={c.id}>
+        <div className="fragment" key={row.id}>
           <div className="form-group row">
             <div className="form-group col-xs-13">
               <span className={`shadow-text ${weightInvalid ? 'invalid' : ''}`}>
-                {weightInvalid ? <Icon name="question-circle-o" size="h3"/> : weight}
+                {weightInvalid ? <Icon name="question-circle-o" size="h3"/> : row.weight}
               </span>
               <label>Fragment, Element or Mass (amu)</label>
-              <input className="form-control" placeholder="Enter a fragment" value={c.value} onChange={this.updateCoeff.bind(this, i)} autoFocus={i===0}/>
+              <input className="form-control" placeholder="Enter a fragment" value={row.coef} onChange={this.updateCoef.bind(this, rowIndex)} autoFocus={rowIndex===0}/>
             </div>
             <div className="col-xs-3 form-group">
               <label>Charge</label>
-              <select className="form-control" value={charges[i]} onChange={this.updateCharge.bind(this, i)}>
+              <select className="form-control" value={row.charge} onChange={this.updateCharge.bind(this, rowIndex)}>
                 {chargeOptions}
               </select>
             </div>
-            <Input label="Min" className="col-xs-3" value={min} onChange={this.updateRange.bind(this, i, 0)}/>
-            <Input label="Max" className="col-xs-3" value={max} onChange={this.updateRange.bind(this, i, 1)}/>
-            <a href="javascript:void(0)" className="action-icon col-xs-2 ptxxl" onClick={this.removeCoeff.bind(this, i)}>
+            <Input label="Min" className="col-xs-3" value={row.range.min} onChange={this.updateRange.bind(this, rowIndex, 'min')}/>
+            <Input label="Max" className="col-xs-3" value={row.range.max} onChange={this.updateRange.bind(this, rowIndex, 'max')}/>
+            <a href="javascript:void(0)" className="action-icon col-xs-2 ptxxl" onClick={this.removeRow.bind(this, rowIndex)}>
               <OverlayTrigger placement="top" overlay={<Tooltip>Remove this Fragment</Tooltip>}>
                 <Icon name="close" size="h3"/>
               </OverlayTrigger>
@@ -153,8 +156,6 @@ class Application extends React.Component {
         </div>
       );
     });
-
-    solveDisabled = solveDisabled || solving || !coefs.every(c => c.value) || parseInt(desiredSum, 10) === 0;
 
     return (
       <form className="paxl mass-spec-solver">
@@ -183,18 +184,18 @@ class Application extends React.Component {
                 <div className="col-md-2">Error</div>
               </div>
               <ul>
-                {solutions.sort(s => Math.abs(s.sum - desiredSum)).map(solution => {
+                {solutions.map(solution => {
                   return (
-                    <li key={solution.sum} className="row mtm">
+                    <li key={solution.params.join('-')} className="row mtm">
                       <div className="col-md-14">
                         {
                           solution.params
-                            .filter(param => param)
                             .map((param, j) => {
-                               const formula = coefs[j].value.split('').map((char, charIndex) => {
+                               if (param === 0) return '';
+                               const formula = solutionRows[j].coef.split('').map((char, charIndex) => {
                                  return isFinite(char) ? <sub key={charIndex}>{char}</sub> : <span key={charIndex}>{char}</span>;
                                });
-                               return <span className="mlxs" key={coefs[j].value}>({formula})<sub>{param}</sub></span>;
+                               return <span className="mlxs" key={solutionRows[j].coef}>({formula})<sub>{param}</sub></span>;
                              })
                         }
                       </div>
@@ -216,14 +217,14 @@ class Application extends React.Component {
             <div className="fragment" key="9999">
               <div className="row">
                 <div className="col-xs-22"></div>
-                <a href="javascript:void(0)" className="action-icon col-xs-2 ptxxl" onClick={this.addCoeff}>
+                <a href="javascript:void(0)" className="action-icon col-xs-2 ptxxl" onClick={this.addRow}>
                   <OverlayTrigger placement="top" overlay={<Tooltip>Add a Fragment</Tooltip>}>
                     <Icon name="plus-circle" size="h3"/>
                   </OverlayTrigger>
                 </a>
               </div>
             </div>
-            {coeffInputs}
+            {coefInputs}
           </VelocityTransitionGroup>
         </div>
       </form>
