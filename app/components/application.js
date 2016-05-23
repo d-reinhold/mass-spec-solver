@@ -8,6 +8,8 @@ const SimpleRecursiveKnapsack = require('algorithms/simple_recursive_knapsack');
 const VelocityTransitionGroup = require('helpers/velocity_transition_group');
 const ElementalMassHelper = require('helpers/elemental_mass_helper');
 const range = require('lodash.range');
+const clone = require('lodash.clone');
+const cloneDeep = require('lodash.clonedeep');
 
 
 function computeWeight({coef, charge}) {
@@ -66,7 +68,7 @@ class Application extends React.Component {
     setTimeout(() => {
       this.setState({
         solutions: SimpleRecursiveKnapsack.solve(rows, parseFloat(desiredSum), parseFloat(maxError)),
-        solutionRows: rows.slice(0),
+        solutionRows: cloneDeep(rows),
         solving: false
       });
     });
@@ -79,7 +81,7 @@ class Application extends React.Component {
   };
 
   removeRow = (i) => {
-    let newRows = this.state.rows.slice(0);
+    let newRows = clone(this.state.rows);
     newRows.splice(i, 1);
     this.setState({rows: newRows}, this.updateRoute.bind(this));
   };
@@ -93,20 +95,20 @@ class Application extends React.Component {
   };
 
   updateCoef = (i, e) => {
-    let newRows = this.state.rows.slice(0);
+    let newRows = clone(this.state.rows);
     newRows[i].coef = e.target.value;
     newRows[i].weight = computeWeight(newRows[i]);
     this.setState({rows: newRows}, this.updateRoute.bind(this));
   };
 
   updateRange = (i, type, e) => {
-    let newRows = this.state.rows.slice(0);
+    let newRows = clone(this.state.rows);
     newRows[i].range[type] = parseNumeric(e.target.value);
     this.setState({rows: newRows}, this.updateRoute.bind(this));
   };
 
   updateCharge = (i, e) => {
-    let newRows = this.state.rows.slice(0);
+    let newRows = clone(this.state.rows);
     newRows[i].charge = parseInt(e.target.value, 10);
     newRows[i].weight = computeWeight(newRows[i]);
     this.setState({rows: newRows}, this.updateRoute.bind(this));
