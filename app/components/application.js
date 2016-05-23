@@ -186,7 +186,7 @@ class Application extends React.Component {
                 <div className="col-md-2">Error</div>
               </div>
               <ul>
-                {solutions.map(solution => {
+                {solutions.sort((a, b) => a.percentError - b.percentError).map(solution => {
                   return (
                     <li key={solution.params.join('-')} className="row mtm">
                       <div className="col-md-14">
@@ -205,7 +205,7 @@ class Application extends React.Component {
                         {solution.sum.toFixed(4)}
                       </div>
                       <div className="col-md-2">
-                        {((1 - solution.sum / desiredSum) * 100).toPrecision(3)}%
+                        {solution.percentError.toPrecision(3)}%
                       </div>
                     </li>
                   );
