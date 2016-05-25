@@ -1,7 +1,7 @@
 $primary-color: #00A598;
 
 .mass-spec-solver {
-  min-width: 300px;
+  min-width: 400px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -23,7 +23,10 @@ $primary-color: #00A598;
 
   .solutions {
     font-size: 18px;
-    width: 50%;
+    width: 60%;
+    a {
+      font-size: 14px;
+    }
     h4 {
       display: inline-block;
     }

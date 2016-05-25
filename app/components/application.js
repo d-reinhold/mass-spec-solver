@@ -11,7 +11,6 @@ const range = require('lodash.range');
 const clone = require('lodash.clone');
 const cloneDeep = require('lodash.clonedeep');
 
-
 function computeWeight({coef, charge}) {
   let weight = ElementalMassHelper.fragments[coef];
   if (!weight) {
@@ -31,7 +30,7 @@ function computeWeight({coef, charge}) {
 
 function emptyRow() {
   return {
-    id: Math.random(),
+    id: Math.floor(Math.random() * 1000),
     coef: '',
     range: {min: 0, max: 5},
     charge: 0,
@@ -48,9 +47,10 @@ class Application extends React.Component {
     super(props, context);
     const urlParams = location.search.slice(1).split('&').map(val => val && JSON.parse(decodeURIComponent(val.split('=')[1]) || '""'));
     this.state = {
-      desiredSum: urlParams[0] || 0,
-      maxError: urlParams[1] || 0.01,
-      rows: urlParams[2] || [emptyRow()],
+      totalMass: urlParams[0] || 0,
+      totalCharge: urlParams[1] || '',
+      maxError: urlParams[2] || 0.01,
+      rows: urlParams[3] || [emptyRow()],
       solutionRows: null,
       solutions: null,
       solving: false
@@ -58,16 +58,16 @@ class Application extends React.Component {
   }
 
   updateRoute = () => {
-    const {desiredSum, maxError, rows} = this.state;
-    history.pushState(null, null, `?desiredSum=${JSON.stringify(desiredSum)}&maxError=${JSON.stringify(maxError)}&rows=${JSON.stringify(rows)}`);
+    const {totalMass, totalCharge, maxError, rows} = this.state;
+    history.pushState(null, null, `?totalMass=${JSON.stringify(totalMass)}&totalCharge=${JSON.stringify(totalCharge)}&maxError=${JSON.stringify(maxError)}&rows=${JSON.stringify(rows)}`);
   };
 
   solve = () => {
-    const {desiredSum, maxError, rows} = this.state;
+    const {totalMass, maxError, rows} = this.state;
     this.setState({solving: true});
     setTimeout(() => {
       this.setState({
-        solutions: SimpleRecursiveKnapsack.solve(rows, parseFloat(desiredSum), parseFloat(maxError)),
+        solutions: SimpleRecursiveKnapsack.solve(rows, parseFloat(totalMass), parseFloat(maxError)),
         solutionRows: cloneDeep(rows),
         solving: false
       });
@@ -86,8 +86,12 @@ class Application extends React.Component {
     this.setState({rows: newRows}, this.updateRoute.bind(this));
   };
 
-  updateDesiredSum = (e) => {
-    this.setState({desiredSum: parseNumeric(e.target.value)}, this.updateRoute.bind(this));
+  updateTotalMass = (e) => {
+    this.setState({totalMass: parseNumeric(e.target.value)}, this.updateRoute.bind(this));
+  };
+
+  updateTotalCharge = (e) => {
+    this.setState({totalCharge: parseNumeric(e.target.value)}, this.updateRoute.bind(this));
   };
 
   updateMaxError = (e) => {
@@ -119,9 +123,9 @@ class Application extends React.Component {
   };
 
   render() {
-    const {desiredSum, maxError, rows, solutions, solutionRows, solving} = this.state;
+    const {totalMass, totalCharge, maxError, rows, solutions, solutionRows, solving} = this.state;
     const numCombinations = rows.map(row => row.range.max - row.range.min).reduce((val, product) => val * product, 1);
-    let solveDisabled = solving || rows.length === 0 || !rows.every(row => row.weight) || desiredSum === 0 || desiredSum === '' || maxError === 0 || maxError === '';
+    let solveDisabled = solving || rows.length === 0 || !rows.every(row => row.weight) || totalMass === 0 || totalMass === '' || maxError === 0 || maxError === '';
     let coefInputs = rows.map((row, rowIndex) => {
       const chargeOptions = range(8, -9).map(charge => {
         const chargeLabel = charge > 0 ? `+${charge}` : charge;
@@ -138,7 +142,7 @@ class Application extends React.Component {
               <span className={`shadow-text ${weightInvalid ? 'invalid' : ''}`}>
                 {weightInvalid ? <Icon name="question-circle-o" size="h3"/> : row.weight}
               </span>
-              <label>Fragment, Element or Mass (amu)</label>
+              <label>Fragment, Element or Mass (g/mol)</label>
               <input className="form-control" placeholder="Enter a fragment" value={row.coef} onChange={this.updateCoef.bind(this, rowIndex)} autoFocus={rowIndex===0}/>
             </div>
             <div className="col-xs-3 form-group">
@@ -158,16 +162,24 @@ class Application extends React.Component {
         </div>
       );
     });
+    let validSolutions = solutions;
+    if (totalCharge && solutions) {
+      validSolutions = solutions.filter(s => {
+        const solutionCharge = s.params.reduce((sum, param, i) => {
+          return sum + param * solutionRows[i].charge;
+        }, 0);
+        return solutionCharge === parseInt(totalCharge, 10);
+      });
+    }
 
     return (
       <form className="paxl mass-spec-solver">
         <h1>Mass Spec Solver</h1>
         <div className="main-inputs">
           <div className="search form-group row">
-            <div className="col-xs-5"></div>
-            <Input label="Desired Sum" className="col-xs-9" value={desiredSum} onChange={this.updateDesiredSum}/>
-            <Input label="Max Error" className="col-xs-5" value={maxError} onChange={this.updateMaxError}/>
-            <div className="col-xs-5"></div>
+            <Input label="Total Mass" className="col-xs-8" value={totalMass} onChange={this.updateTotalMass}/>
+            <Input label="Total Charge (optional)" className="col-xs-8" value={totalCharge} onChange={this.updateTotalCharge}/>
+            <Input label="Max Error" className="col-xs-8" value={maxError} onChange={this.updateMaxError}/>
           </div>
           <div className="buttons mtl row">
             <div className="col-xs-8"></div>
@@ -176,20 +188,20 @@ class Application extends React.Component {
           </div>
         </div>
         <div className="solutions">
-          {solutions &&
+          {validSolutions &&
             <div className="row">
-              <h4>{solutions.length === 1 ? 'There is 1 solution.' : `There are ${solutions.length} solutions.`}</h4>
+              <h4>{validSolutions.length === 1 ? 'There is 1 solution.' : `There are ${validSolutions.length} solutions.`}</h4>
               <a onClick={this.clearSolutions.bind(this)} className="mlm" href="javascript:void(0)">Clear</a>
               <div className="row">
-                <div className="col-md-14">Compound</div>
-                <div className="col-md-6">Exact Mass</div>
+                <div className="col-md-13">Compound</div>
+                <div className="col-md-7">Exact Mass (g/mol)</div>
                 <div className="col-md-2">Error</div>
               </div>
               <ul>
-                {solutions.sort((a, b) => a.percentError - b.percentError).map(solution => {
+                {validSolutions.sort((a, b) => a.percentError - b.percentError).map(solution => {
                   return (
                     <li key={solution.params.join('-')} className="row mtm">
-                      <div className="col-md-14">
+                      <div className="col-md-13">
                         {
                           solution.params
                             .map((param, j) => {
@@ -201,7 +213,7 @@ class Application extends React.Component {
                              })
                         }
                       </div>
-                      <div className="col-md-6">
+                      <div className="col-md-7">
                         {solution.sum.toFixed(4)}
                       </div>
                       <div className="col-md-2">
