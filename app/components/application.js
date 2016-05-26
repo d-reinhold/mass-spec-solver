@@ -124,7 +124,6 @@ class Application extends React.Component {
 
   render() {
     const {totalMass, totalCharge, maxError, rows, solutions, solutionRows, solving} = this.state;
-    const numCombinations = rows.map(row => row.range.max - row.range.min).reduce((val, product) => val * product, 1);
     let solveDisabled = solving || rows.length === 0 || !rows.every(row => row.weight) || totalMass === 0 || totalMass === '' || maxError === 0 || maxError === '';
     let coefInputs = rows.map((row, rowIndex) => {
       const chargeOptions = range(8, -9).map(charge => {
@@ -181,11 +180,7 @@ class Application extends React.Component {
             <Input label="Total Charge (optional)" className="col-xs-8" value={totalCharge} onChange={this.updateTotalCharge}/>
             <Input label="Max Error" className="col-xs-8" value={maxError} onChange={this.updateMaxError}/>
           </div>
-          <div className="buttons mtl row">
-            <div className="col-xs-8"></div>
-            <HighlightButton onClick={this.solve.bind(this)} type="button" className="mlxl phxxl" disabled={solveDisabled}>{solving ? 'Solving' : 'Solve!'}</HighlightButton>
-            <p className="mlxl combinations">{numCombinations} combinations</p>
-          </div>
+          <HighlightButton onClick={this.solve.bind(this)} type="button" className="phxxl" disabled={solveDisabled}>{solving ? 'Solving' : 'Solve!'}</HighlightButton>
         </div>
         <div className="solutions">
           {validSolutions &&
