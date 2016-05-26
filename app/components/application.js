@@ -75,47 +75,45 @@ class Application extends React.Component {
   };
 
   addRow = () => {
-    this.setState({
-      rows: [emptyRow()].concat(this.state.rows)
-    }, this.updateRoute.bind(this));
+    this.setState({rows: [emptyRow()].concat(this.state.rows)}, this.updateRoute);
   };
 
   removeRow = (i) => {
     let newRows = clone(this.state.rows);
     newRows.splice(i, 1);
-    this.setState({rows: newRows}, this.updateRoute.bind(this));
+    this.setState({rows: newRows}, this.updateRoute);
   };
 
   updateTotalMass = (e) => {
-    this.setState({totalMass: parseNumeric(e.target.value)}, this.updateRoute.bind(this));
+    this.setState({totalMass: parseNumeric(e.target.value)}, this.updateRoute);
   };
 
   updateTotalCharge = (e) => {
-    this.setState({totalCharge: parseNumeric(e.target.value)}, this.updateRoute.bind(this));
+    this.setState({totalCharge: parseNumeric(e.target.value)}, this.updateRoute);
   };
 
   updateMaxError = (e) => {
-    this.setState({maxError: parseNumeric(e.target.value)}, this.updateRoute.bind(this));
+    this.setState({maxError: parseNumeric(e.target.value)}, this.updateRoute);
   };
 
   updateCoef = (i, e) => {
     let newRows = clone(this.state.rows);
     newRows[i].coef = e.target.value;
     newRows[i].weight = computeWeight(newRows[i]);
-    this.setState({rows: newRows}, this.updateRoute.bind(this));
+    this.setState({rows: newRows}, this.updateRoute);
   };
 
   updateRange = (i, type, e) => {
     let newRows = clone(this.state.rows);
     newRows[i].range[type] = parseNumeric(e.target.value);
-    this.setState({rows: newRows}, this.updateRoute.bind(this));
+    this.setState({rows: newRows}, this.updateRoute);
   };
 
   updateCharge = (i, e) => {
     let newRows = clone(this.state.rows);
     newRows[i].charge = parseInt(e.target.value, 10);
     newRows[i].weight = computeWeight(newRows[i]);
-    this.setState({rows: newRows}, this.updateRoute.bind(this));
+    this.setState({rows: newRows}, this.updateRoute);
   };
 
   clearSolutions = () => {
@@ -180,13 +178,13 @@ class Application extends React.Component {
             <Input label="Total Charge (optional)" className="col-xs-8" value={totalCharge} onChange={this.updateTotalCharge}/>
             <Input label="Max Error" className="col-xs-8" value={maxError} onChange={this.updateMaxError}/>
           </div>
-          <HighlightButton onClick={this.solve.bind(this)} type="button" className="phxxl" disabled={solveDisabled}>{solving ? 'Solving' : 'Solve!'}</HighlightButton>
+          <HighlightButton onClick={this.solve} type="button" className="phxxl" disabled={solveDisabled}>{solving ? 'Solving' : 'Solve!'}</HighlightButton>
         </div>
         <div className="solutions">
           {validSolutions &&
             <div className="row">
               <h4>{validSolutions.length === 1 ? 'There is 1 solution.' : `There are ${validSolutions.length} solutions.`}</h4>
-              <a onClick={this.clearSolutions.bind(this)} className="mlm" href="javascript:void(0)">Clear</a>
+              <a onClick={this.clearSolutions} className="mlm" href="javascript:void(0)">Clear</a>
               <div className="row">
                 <div className="col-md-13">Compound</div>
                 <div className="col-md-7">Exact Mass (g/mol)</div>
