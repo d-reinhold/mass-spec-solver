@@ -65,9 +65,12 @@ class Application extends React.Component {
   solve = () => {
     const {totalMass, maxError, rows} = this.state;
     this.setState({solving: true});
+    const formattedRows = rows.map(row => {
+      return {weight: parseFloat(row.weight), range: {min: parseInt(row.range.min, 10), max: parseInt(row.range.max, 10)}};
+    });
     setTimeout(() => {
       this.setState({
-        solutions: SimpleRecursiveKnapsack.solve(rows, parseFloat(totalMass), parseFloat(maxError)),
+        solutions: SimpleRecursiveKnapsack.solve(formattedRows, parseFloat(totalMass), parseFloat(maxError)),
         solutionRows: cloneDeep(rows),
         solving: false
       });
