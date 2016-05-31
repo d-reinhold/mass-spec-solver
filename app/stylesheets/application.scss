@@ -20,6 +20,10 @@ $primary-color: #00A598;
     display: flex;
     flex-direction: column;
     align-items: center;
+    .num-combinations {
+      padding-top: 4px;
+      font-size: 12px;
+    }
   }
 
   .solutions {

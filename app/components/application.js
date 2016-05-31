@@ -133,6 +133,7 @@ class Application extends React.Component {
   render() {
     const {totalMass, totalCharge, maxError, rows, solutions, solutionRows, solving} = this.state;
     let solveDisabled = solving || rows.length === 0 || !rows.every(row => row.weight) || totalMass === 0 || totalMass === '' || maxError === 0 || maxError === '';
+    const numCombinations = rows.map(row => (row.range.max - row.range.min) + 1).reduce((val, product) => val * product, 1);
     let coefInputs = rows.map((row, rowIndex) => {
       const chargeOptions = range(8, -9).map(charge => {
         const chargeLabel = charge > 0 ? `+${charge}` : charge;
@@ -188,7 +189,10 @@ class Application extends React.Component {
             <Input label="Total Charge (optional)" className="col-xs-8" value={totalCharge} onChange={this.updateTotalCharge}/>
             <Input label="Max Error" className="col-xs-8" value={maxError} onChange={this.updateMaxError}/>
           </div>
-          <HighlightButton onClick={this.solve} type="button" className="phxxl" disabled={solveDisabled}>{solving ? 'Solving' : 'Solve!'}</HighlightButton>
+          <div>
+            <HighlightButton onClick={this.solve} type="button" className="phxxl" disabled={solveDisabled}>{solving ? 'Solving' : 'Solve!'}</HighlightButton>
+          </div>
+          <span className="num-combinations">{`${numCombinations} combinations to search.`}</span>
         </div>
         <div className="solutions">
           {validSolutions &&
@@ -234,7 +238,7 @@ class Application extends React.Component {
             <div className="fragment" key="9999">
               <div className="row">
                 <div className="col-xs-22"></div>
-                <a href="javascript:void(0)" className="action-icon col-xs-2 ptxxl" onClick={this.addRow}>
+                <a href="javascript:void(0)" className="action-icon col-xs-2 ptm" onClick={this.addRow}>
                   <OverlayTrigger placement="top" overlay={<Tooltip>Add a Fragment</Tooltip>}>
                     <Icon name="plus-circle" size="h3"/>
                   </OverlayTrigger>
