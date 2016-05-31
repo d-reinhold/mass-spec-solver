@@ -4,7 +4,7 @@ const {Input} = require('pui-react-inputs');
 const {HighlightButton} = require('pui-react-buttons');
 const {Tooltip} = require('pui-react-tooltip');
 const {OverlayTrigger} = require('pui-react-overlay-trigger');
-const SimpleRecursiveKnapsack = require('algorithms/simple_recursive_knapsack');
+const AWS = require('aws-sdk');
 const VelocityTransitionGroup = require('helpers/velocity_transition_group');
 const ElementalMassHelper = require('helpers/elemental_mass_helper');
 const range = require('lodash.range');
@@ -68,12 +68,19 @@ class Application extends React.Component {
     const formattedRows = rows.map(row => {
       return {weight: parseFloat(row.weight), range: {min: parseInt(row.range.min, 10), max: parseInt(row.range.max, 10)}};
     });
-    setTimeout(() => {
-      this.setState({
-        solutions: SimpleRecursiveKnapsack.solve(formattedRows, parseFloat(totalMass), parseFloat(maxError)),
-        solutionRows: cloneDeep(rows),
-        solving: false
-      });
+    const lambda = new AWS.Lambda();
+    lambda.invoke({
+      FunctionName: 'recursiveSubsetSum',
+      InvocationType: 'RequestResponse',
+      LogType: 'None',
+      Payload: JSON.stringify({desiredSum: parseFloat(totalMass), maxError: parseFloat(maxError), rows: formattedRows})
+    }, (err, data) => {
+      this.setState({solving: false});
+      if (err) {
+        console.error(err, err.stack);
+      } else {
+        this.setState({solutions: JSON.parse(data.Payload).solutions, solutionRows: cloneDeep(rows)});
+      }
     });
   };
 

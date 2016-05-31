@@ -1,3 +1,4 @@
+process.env.AWS_SERVICES = 'lambda'; // only include the AWS lambda sdk in the bundle
 const webpack = require('webpack');
 const path = require('path');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
@@ -13,7 +14,9 @@ module.exports = function(env) {
         {test: [/\.svg(\?|$)/, /\.png(\?|$)/, /\.jpg(\?|$)/, /\.eot(\?|$)/, /\.ttf(\?|$)/, /\.woff2?(\?|$)/], include: /node_modules/, loader: 'file?name=[name]-[hash].[ext]'},
         {test: /\.css$/, exclude: /typography/, loader: ExtractTextPlugin.extract('css-loader?sourceMap')},
         {test: /\.css$/, include: /typography/, loader: ExtractTextPlugin.extract('css-loader')},
-        {test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'}
+        {test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'},
+        {test: /aws-sdk/, loaders: ['transform?aws-sdk/dist-tools/transform']},
+        {test: /\.json$/, loaders: ['json']}
       ]
     },
     output: {
@@ -34,6 +37,9 @@ module.exports = function(env) {
     plugins: [
       new ExtractTextPlugin('components.css'),
       new webpack.IgnorePlugin(/^\.\/locale$/, [/moment$/])
-    ]
+    ],
+    node: {
+      fs: 'empty'
+    },
   }, require(`./webpack/${env}`));
 };
