@@ -6,6 +6,11 @@ $primary-color: #00A598;
   flex-direction: column;
   align-items: center;
 
+  .site-links {
+    position: absolute;
+    right: 45px;
+    display: flex;
+  }
 
   select, select:active, select:focus, select:hover {
     color: $primary-color;
