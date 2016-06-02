@@ -1,6 +1,7 @@
 const React = require('react');
 const AWS = require('aws-sdk');
 const VelocityTransitionGroup = require('helpers/velocity_transition_group');
+const SimpleRecursiveKnapsack = require('algorithms/simple_recursive_knapsack');
 const {Icon} = require('pui-react-iconography');
 const {Input} = require('pui-react-inputs');
 const {HighlightButton} = require('pui-react-buttons');
@@ -14,24 +15,35 @@ const SolveHelper = require('../helpers/solve_helper');
 class SolvePage extends React.Component {
   solve = () => {
     const {totalMass, maxError, rows} = this.props;
-    this.props.update({solving: true});
     const formattedRows = rows.map(row => {
       return {weight: parseFloat(row.weight), range: {min: parseInt(row.range.min, 10), max: parseInt(row.range.max, 10)}};
     });
-    const lambda = new AWS.Lambda();
-    lambda.invoke({
-      FunctionName: 'recursiveSubsetSum',
-      InvocationType: 'RequestResponse',
-      LogType: 'None',
-      Payload: JSON.stringify({desiredSum: parseFloat(totalMass), maxError: parseFloat(maxError), rows: formattedRows})
-    }, (err, data) => {
-      this.props.update({solving: false});
-      if (err) {
-        console.error(err, err.stack);
-      } else {
-        this.props.update({solutions: JSON.parse(data.Payload).solutions, solutionRows: cloneDeep(rows)});
-      }
-    });
+
+    this.props.update({solving: true});
+    if (window.offline) {
+      setTimeout(() => {
+        this.props.update({
+          solutions: SimpleRecursiveKnapsack.solve(formattedRows, parseFloat(totalMass), parseFloat(maxError)),
+          solutionRows: cloneDeep(rows),
+          solving: false
+        });
+      });
+    } else {
+      const lambda = new AWS.Lambda();
+      lambda.invoke({
+        FunctionName: 'recursiveSubsetSum',
+        InvocationType: 'RequestResponse',
+        LogType: 'None',
+        Payload: JSON.stringify({desiredSum: parseFloat(totalMass), maxError: parseFloat(maxError), rows: formattedRows})
+      }, (err, data) => {
+        this.props.update({solving: false});
+        if (err) {
+          console.error(err, err.stack);
+        } else {
+          this.props.update({solutions: JSON.parse(data.Payload).solutions, solutionRows: cloneDeep(rows)});
+        }
+      });
+    }
   };
 
   addRow = () => {
