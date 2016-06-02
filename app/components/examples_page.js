@@ -5,6 +5,7 @@ class ExamplesPage extends React.Component {
     return (
       <div>
         <h3>Examples</h3>
+        <p>Coming soon!</p>
       </div>
     );
   }
