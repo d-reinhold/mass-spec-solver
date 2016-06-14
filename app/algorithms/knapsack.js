@@ -2,18 +2,20 @@ const AWS = require('aws-sdk');
 
 const algorithms = {
   simple: require('algorithms/simple_recursive_knapsack'),
-  mitm: require('algorithms/meet_in_the_middle_knapsack')
+  mitm: require('algorithms/meet_in_the_middle_knapsack'),
+  mitm_bs: require('algorithms/meet_in_the_middle_with_binary_search_knapsack')
 };
 
 const lambdaFunctions = {
   simple: 'MassSpecSolverSimpleRecursiveKnapsack',
-  mitm: 'MassSpecSolverMeetInTheMiddleKnapsack'
+  mitm: 'MassSpecSolverMeetInTheMiddleKnapsack',
+  mitm_bs: 'MassSpecSolverMeetInTheMiddleWithBinarySearchKnapsack'
 };
 
 const Knapsack = {
   solve(strategy, rows, desiredSum, maxError) {
     const start = Date.now();
-    const solver = algorithms[strategy.algorithm] || algorithms.mitm;
+    const solver = algorithms[strategy.algorithm] || algorithms.mitm_bs;
 
     return new Promise((resolve, reject) => {
       if (strategy.offline) {
@@ -25,7 +27,7 @@ const Knapsack = {
       } else {
         const lambda = new AWS.Lambda();
         lambda.invoke({
-          FunctionName: lambdaFunctions[strategy.algorithm] || lambdaFunctions.mitm,
+          FunctionName: lambdaFunctions[strategy.algorithm] || lambdaFunctions.mitm_bs,
           InvocationType: 'RequestResponse',
           LogType: 'None',
           Payload: JSON.stringify({desiredSum, maxError, rows})

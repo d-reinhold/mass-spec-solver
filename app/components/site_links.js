@@ -18,18 +18,24 @@ const OptionsDropdown = ({strategy, update}) => {
         </label>
       </DropdownItem>
       <DropdownItem href="#">
-        <h5>Algorithm</h5>
+        <h5>Select Algorithm:</h5>
         <ul className="list-unstyled">
           <li>
             <label>
-              Meet in the Middle
+              Simple recursive
+              <input type="radio" checked={strategy.algorithm === 'simple'} onChange={updateAlgorithm('simple')}/>
+            </label>
+          </li>
+          <li>
+            <label>
+              Meet in the Middle (MitM)
               <input type="radio" checked={strategy.algorithm === 'mitm'} onChange={updateAlgorithm('mitm')}/>
             </label>
           </li>
           <li>
             <label>
-              Simple recursive
-              <input type="radio" checked={strategy.algorithm === 'simple'} onChange={updateAlgorithm('simple')}/>
+              MitM with Binary Search
+              <input type="radio" checked={strategy.algorithm === 'mitm_bs'} onChange={updateAlgorithm('mitm_bs')}/>
             </label>
           </li>
         </ul>

@@ -15,7 +15,7 @@ class Application extends React.Component {
       maxError: urlParams[2] || 0.01,
       rows: urlParams[3] || [SolveHelper.emptyRow()],
       page: urlParams[4] || 'Solve',
-      strategy: urlParams[5] || {offline: false, algorithm: 'mitm'},
+      strategy: urlParams[5] || {offline: false, algorithm: 'mitm_bs'},
       solutionRows: null,
       solutions: null,
       solving: false
