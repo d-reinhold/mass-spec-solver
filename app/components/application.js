@@ -15,6 +15,7 @@ class Application extends React.Component {
       maxError: urlParams[2] || 0.01,
       rows: urlParams[3] || [SolveHelper.emptyRow()],
       page: urlParams[4] || 'Solve',
+      strategy: urlParams[5] || {offline: false, algorithm: 'mitm'},
       solutionRows: null,
       solutions: null,
       solving: false
@@ -22,8 +23,8 @@ class Application extends React.Component {
   }
 
   updateRoute = () => {
-    const {totalMass, totalCharge, maxError, rows, page} = this.state;
-    history.pushState(null, null, `?totalMass="${totalMass}"&totalCharge="${totalCharge}"&maxError="${maxError}"&rows=${JSON.stringify(rows)}&page="${page}"`);
+    const {totalMass, totalCharge, maxError, rows, page, strategy} = this.state;
+    history.pushState(null, null, `?totalMass="${totalMass}"&totalCharge="${totalCharge}"&maxError="${maxError}"&rows=${JSON.stringify(rows)}&page="${page}"&strategy=${JSON.stringify(strategy)}`);
   };
 
   update = (state) => {
@@ -32,10 +33,11 @@ class Application extends React.Component {
 
   render() {
     const Pages = {Solve: SolvePage, Examples: ExamplesPage, About: AboutPage};
-    const Page = Pages[this.state.page];
+    const {page, strategy} = this.state;
+    const Page = Pages[page];
     return (
       <div className="pvxl phxxxl mass-spec-solver">
-        <SiteLinks currentPage={this.state.page} update={this.update}/>
+        <SiteLinks currentPage={page} strategy={strategy} update={this.update}/>
         <h1>Mass Spec Solver</h1>
         <Page {...{...this.state, update: this.update}}/>
       </div>

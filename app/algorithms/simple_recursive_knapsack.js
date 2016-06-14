@@ -13,10 +13,7 @@ function recursiveSolve(rows, desiredSum, sum, params, solutions, maxError, maxS
 const SimpleRecursiveKnapsack = {
   solve(rows, desiredSum, maxError) {
     let solutions = [];
-    const start = Date.now();
     recursiveSolve(rows, desiredSum, 0, [], solutions, maxError, maxError + desiredSum);
-    const totalTime = Date.now() - start;
-    console.log('Computation took ' + totalTime + 'ms');
     return solutions;
   }
 };
