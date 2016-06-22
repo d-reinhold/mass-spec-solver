@@ -10,6 +10,7 @@ const range = require('lodash.range');
 const clone = require('lodash.clone');
 const cloneDeep = require('lodash.clonedeep');
 const SolveHelper = require('../helpers/solve_helper');
+const Solutions = require('./solutions');
 
 class SolvePage extends React.Component {
   solve = () => {
@@ -73,12 +74,8 @@ class SolvePage extends React.Component {
     this.props.update({rows: newRows});
   };
 
-  clearSolutions = () => {
-    this.props.update({solutions: null});
-  };
-
   render() {
-    const {totalMass, totalCharge, maxError, rows, solutions, solutionRows, solving, page} = this.props;
+    const {totalMass, totalCharge, maxError, rows, solutions, solutionRows, solving, update} = this.props;
     let solveDisabled = solving || rows.length === 0 || !rows.every(row => row.weight) || totalMass === 0 || totalMass === '' || maxError === 0 || maxError === '';
     const numCombinations = rows.map(row => (row.range.max - row.range.min) + 1).reduce((val, product) => val * product, 1);
     let coefInputs = rows.map((row, rowIndex) => {
@@ -117,15 +114,6 @@ class SolvePage extends React.Component {
         </div>
       );
     });
-    let validSolutions = solutions;
-    if (totalCharge && solutions) {
-      validSolutions = solutions.filter(s => {
-        const solutionCharge = s.params.reduce((sum, param, i) => {
-          return sum + param * solutionRows[i].charge;
-        }, 0);
-        return solutionCharge === parseInt(totalCharge, 10);
-      });
-    }
 
     return (
       <form>
@@ -140,45 +128,7 @@ class SolvePage extends React.Component {
           </div>
           <span className="num-combinations">{`${numCombinations} combinations to search.`}</span>
         </div>
-        <div className="solutions">
-          {validSolutions &&
-            <div className="row">
-              <h4>{validSolutions.length === 1 ? 'There is 1 solution.' : `There are ${validSolutions.length} solutions.`}</h4>
-              <a onClick={this.clearSolutions} className="mlm" href="javascript:void(0)">Clear</a>
-              <div className="row">
-                <div className="col-md-13">Compound</div>
-                <div className="col-md-7">Exact Mass (g/mol)</div>
-                <div className="col-md-2">Error</div>
-              </div>
-              <ul>
-                {validSolutions.sort((a, b) => a.percentError - b.percentError).map(solution => {
-                  return (
-                    <li key={solution.params.join('-')} className="row mtm">
-                      <div className="col-md-13">
-                        {
-                          solution.params
-                            .map((param, j) => {
-                               if (param === 0) return '';
-                               const formula = solutionRows[j].coef.split('').map((char, charIndex) => {
-                                 return isFinite(char) ? <sub key={charIndex}>{char}</sub> : <span key={charIndex}>{char}</span>;
-                               });
-                               return <span className="mlxs" key={solutionRows[j].coef}>({formula})<sub>{param}</sub></span>;
-                             })
-                        }
-                      </div>
-                      <div className="col-md-7">
-                        {solution.sum.toFixed(4)}
-                      </div>
-                      <div className="col-md-2">
-                        {solution.percentError.toPrecision(3)}%
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          }
-        </div>
+        <Solutions {...{totalCharge, solutions, solutionRows, update}}/>
         <div className="fragments">
           <VelocityTransitionGroup transitionName="slide-forward" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
             <div className="fragment" key="9999">
