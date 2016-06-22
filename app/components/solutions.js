@@ -1,5 +1,5 @@
 const React = require('react');
-const Formula = require('./formula');
+const Formula = require('components/formula');
 
 class Solutions extends React.Component {
   clearSolutions = () => {
