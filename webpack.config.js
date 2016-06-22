@@ -3,8 +3,42 @@ const webpack = require('webpack');
 const path = require('path');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
+const overrides = {
+  development: {
+    devtool: 'cheap-module-source-map',
+    watch: true
+  },
+  test: {
+    devtool: 'cheap-module-source-map',
+    entry: null,
+    module: {
+      loaders: [
+        {test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader?sourceMaps=true'},
+        {test: /\.json$/, exclude: /node_modules/, loader: 'json-loader'}
+      ]
+    },
+    output: {
+      filename: 'spec.js'
+    },
+    quiet: true,
+    watch: true
+  },
+  production: {
+    output: {
+      filename: '[name].js',
+      chunkFilename: '[id].js'
+    },
+    plugins: [
+      new ExtractTextPlugin('components.css'),
+      new webpack.optimize.UglifyJsPlugin({compress: {warnings: false}}),
+      new webpack.IgnorePlugin(/^\.\/locale$/, [/moment$/])
+    ]
+  }
+};
+
 module.exports = function(env) {
-  return Object.assign({}, {
+  return Object.assign({
+    watch: true,
     entry: {
       application: './app/runtime/start.js'
     },
@@ -25,13 +59,9 @@ module.exports = function(env) {
       pathinfo: true
     },
     resolve: {
-      alias: {
-        'native-or-bluebird': `${__dirname}/../../app/lib/native_or_bluebird.js`
-      },
       root: [
-        path.resolve(`${__dirname}/../app`),
-        path.resolve(`${__dirname}/../`),
-        path.resolve(`${__dirname}/../node_modules`)
+        path.resolve(`${__dirname}/app`),
+        path.resolve(`${__dirname}/node_modules`)
       ]
     },
     plugins: [
@@ -40,6 +70,6 @@ module.exports = function(env) {
     ],
     node: {
       fs: 'empty'
-    },
-  }, require(`./webpack/${env}`));
+    }
+  }, overrides[env]);
 };
