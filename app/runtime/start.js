@@ -6,10 +6,13 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const Application = require('components/application');
 const AWS = require('aws-sdk');
-var ReactGA = require('react-ga');
-ReactGA.initialize('UA-79749545-1');
 
-// configure the AWS SDK with creds granting invocation ability to the recursiveSubsetSum lambda function
+if (window.location.hostname !== 'localhost') {
+  const GoogleAnalytics = require('react-ga');
+  GoogleAnalytics.initialize('UA-79749545-1');
+  GoogleAnalytics.pageview();
+}
+
 AWS.config.update({accessKeyId: 'AKIAILE7UA4MZKS7LBTQ', secretAccessKey: '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'});
 AWS.config.region = 'us-west-2';
 AWS.config.apiVersions = {lambda: '2015-03-31'};
