@@ -6,7 +6,6 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const overrides = {
   development: {
     devtool: 'cheap-module-source-map',
-    watch: true
   },
   test: {
     devtool: 'cheap-module-source-map',
@@ -20,10 +19,10 @@ const overrides = {
     output: {
       filename: 'spec.js'
     },
-    quiet: true,
-    watch: true
+    quiet: true
   },
   production: {
+    watch: false,
     output: {
       filename: '[name].js',
       chunkFilename: '[id].js'
@@ -31,7 +30,12 @@ const overrides = {
     plugins: [
       new ExtractTextPlugin('components.css'),
       new webpack.optimize.UglifyJsPlugin({compress: {warnings: false}}),
-      new webpack.IgnorePlugin(/^\.\/locale$/, [/moment$/])
+      new webpack.IgnorePlugin(/^\.\/locale$/, [/moment$/]),
+      new webpack.DefinePlugin({
+        'process.env': {
+          'NODE_ENV': JSON.stringify('production')
+        }
+      })
     ]
   }
 };
