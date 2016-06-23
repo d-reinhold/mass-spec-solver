@@ -4,6 +4,7 @@ const AboutPage = require('./about_page');
 const ExamplesPage = require('./examples_page');
 const SiteLinks = require('./site_links');
 const SolveHelper = require('../helpers/solve_helper');
+const AnalyticsHelper = require('../helpers/analytics_helper');
 const rison = require('rison');
 
 class Application extends React.Component {
@@ -22,6 +23,7 @@ class Application extends React.Component {
       solving: false,
     };
     this.state = {...defaultState, ...urlState};
+    AnalyticsHelper.pageview(this.state.page);
   }
 
   updateRoute = () => {
@@ -30,6 +32,7 @@ class Application extends React.Component {
   };
 
   update = (state) => {
+    if (Object.keys(state).includes('page')) { AnalyticsHelper.pageview(state.page); }
     this.setState(state, this.updateRoute);
   }
 
