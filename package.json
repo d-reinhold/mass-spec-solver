@@ -23,6 +23,7 @@
     "react-addons-transition-group": "^15.0.1",
     "react-dom": "^15.0.1",
     "react-ga": "^2.1.0",
+    "rison": "^0.1.1",
     "velocity-animate": "^1.2.3"
   },
   "devDependencies": {

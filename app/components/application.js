@@ -4,27 +4,29 @@ const AboutPage = require('./about_page');
 const ExamplesPage = require('./examples_page');
 const SiteLinks = require('./site_links');
 const SolveHelper = require('../helpers/solve_helper');
+const rison = require('rison');
 
 class Application extends React.Component {
   constructor(props, context) {
     super(props, context);
-    const urlParams = location.search.slice(1).split('&').map(val => val && JSON.parse(decodeURIComponent(val.split('=')[1]) || '""'));
-    this.state = {
-      totalMass: urlParams[0] || 0,
-      totalCharge: urlParams[1] || '',
-      maxError: urlParams[2] || 0.01,
-      rows: urlParams[3] || [SolveHelper.emptyRow()],
-      page: urlParams[4] || 'Solve',
-      strategy: urlParams[5] || {offline: false, algorithm: 'mitm_bs'},
+    const urlState = location.hash.slice(1).length ? rison.decode(location.hash.slice(1)) : {};
+    const defaultState = {
+      totalMass: 0,
+      totalCharge: '',
+      maxError: 0.01,
+      rows: [SolveHelper.emptyRow()],
+      page: 'Solve',
+      strategy: {offline: false, algorithm: 'mitm_bs'},
       solutionRows: null,
       solutions: null,
-      solving: false
+      solving: false,
     };
+    this.state = {...defaultState, ...urlState};
   }
 
   updateRoute = () => {
     const {totalMass, totalCharge, maxError, rows, page, strategy} = this.state;
-    history.pushState(null, null, `?totalMass="${totalMass}"&totalCharge="${totalCharge}"&maxError="${maxError}"&rows=${JSON.stringify(rows)}&page="${page}"&strategy=${JSON.stringify(strategy)}`);
+    history.pushState(null, null, `#${rison.encode({totalMass, totalCharge, maxError, rows, page, strategy})}`);
   };
 
   update = (state) => {
