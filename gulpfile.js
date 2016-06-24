@@ -44,7 +44,7 @@ gulp.task('jasmine', function() {
   return gulp.src(['spec/**/*_spec.js'])
     .pipe(webpack(Object.assign({}, webpackTestConfig, {plugins: [plugin]})))
     .pipe(jasmineBrowser.specRunner())
-    .pipe(jasmineBrowser.server({whenReady: plugin.whenReady}));
+    .pipe(jasmineBrowser.server({whenReady: plugin.whenReady, sourcemappedStacktrace: true}));
 });
 
 gulp.task('dev-server', function() {

@@ -30,6 +30,30 @@ const SolveHelper = {
 
   parseNumeric(value) {
     return value.replace(/[^0-9.]+/g, '');
+  },
+
+  solveDisabled(solving, rows, totalMass, maxError) {
+    return solving ||
+           rows.length === 0 ||
+           !rows.every(row => row.weight && !isNaN(row.weight)) ||
+           totalMass === 0 ||
+           totalMass === '' ||
+           maxError === 0 ||
+           maxError === '';
+  },
+
+  numCombinations(rows) {
+    return rows.map(row => (row.range.max - row.range.min) + 1).reduce((val, product) => val * product, 1);
+  },
+
+  formatRows(rows) {
+    return rows.map(row => ({
+      weight: parseFloat(row.weight),
+      range: {
+        min: parseInt(row.range.min, 10),
+        max: parseInt(row.range.max, 10)
+      }
+    }));
   }
 };
 

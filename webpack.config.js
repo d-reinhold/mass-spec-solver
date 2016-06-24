@@ -8,17 +8,8 @@ const overrides = {
     devtool: 'cheap-module-source-map',
   },
   test: {
-    devtool: 'cheap-module-source-map',
+    devtool: 'eval',
     entry: null,
-    module: {
-      loaders: [
-        {test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader?sourceMaps=true'},
-        {test: /\.json$/, exclude: /node_modules/, loader: 'json-loader'}
-      ]
-    },
-    output: {
-      filename: 'spec.js'
-    },
     quiet: true
   },
   production: {
