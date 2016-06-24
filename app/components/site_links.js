@@ -1,44 +1,38 @@
 const React = require('react');
+const PureComponent = require('./pure_component');
 const {DropdownItem, LinkDropdown} = require('pui-react-dropdowns');
+const Actions = require('runtime/actions');
 
-class OptionsDropdown extends React.Component {
-  updateAlgorithm = (algorithm) => () => {
-    this.props.update({strategy: {...this.props.strategy, ...{algorithm}}});
-  };
-
-  toggleOffline = () => {
-    this.props.update({strategy: {...this.props.strategy, ...{offline: !this.props.strategy.offline}}});
-  };
-
+class OptionsDropdown extends PureComponent {
   render() {
     const {strategy} = this.props;
     return (
       <LinkDropdown title="Options" closeOnMenuClick={false} pullRight={true} border>
-        <DropdownItem href="#">
+        <DropdownItem href="javascript:void(0)">
           <label>
             Offline
-            <input type="checkbox" checked={!!strategy.offline} onChange={this.toggleOffline}/>
+            <input type="checkbox" checked={!!strategy.offline} onChange={Actions.updateOffline.bind(null, !strategy.offline)}/>
           </label>
         </DropdownItem>
-        <DropdownItem href="#">
+        <DropdownItem href="javascript:void(0)">
           <h5>Select Algorithm:</h5>
           <ul className="list-unstyled">
             <li>
               <label>
                 Simple recursive
-                <input type="radio" checked={strategy.algorithm === 'simple'} onChange={this.updateAlgorithm('simple')}/>
+                <input type="radio" checked={strategy.algorithm === 'simple'} onChange={Actions.updateAlgorithm.bind(null, 'simple')}/>
               </label>
             </li>
             <li>
               <label>
                 Meet in the Middle (MitM)
-                <input type="radio" checked={strategy.algorithm === 'mitm'} onChange={this.updateAlgorithm('mitm')}/>
+                <input type="radio" checked={strategy.algorithm === 'mitm'} onChange={Actions.updateAlgorithm.bind(null, 'mitm')}/>
               </label>
             </li>
             <li>
               <label>
                 MitM with Binary Search
-                <input type="radio" checked={strategy.algorithm === 'mitm_bs'} onChange={this.updateAlgorithm('mitm_bs')}/>
+                <input type="radio" checked={strategy.algorithm === 'mitm_bs'} onChange={Actions.updateAlgorithm.bind(null, 'mitm_bs')}/>
               </label>
             </li>
           </ul>
@@ -48,16 +42,11 @@ class OptionsDropdown extends React.Component {
   }
 };
 
-class SiteLinks extends React.Component {
-  updatePage = (page, e) => {
-    e.preventDefault();
-    this.props.update({page});
-  };
-
+class SiteLinks extends PureComponent {
   render() {
     const {currentPage, strategy, update} = this.props;
     let links = ['Solve', 'Examples', 'About'].map(page => {
-      const link = page === currentPage ? page : <a href="javascript:void(0)" onClick={this.updatePage.bind(null, page)}>{page}</a>;
+      const link = page === currentPage ? page : <a href="javascript:void(0)" onClick={Actions.navigate.bind(null, page)}>{page}</a>;
       return <li className="phl" key={page}>{link}</li>;
     });
 

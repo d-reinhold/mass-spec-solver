@@ -1,6 +1,7 @@
 const React = require('react');
+const PureComponent = require('./pure_component');
 
-class Formula extends React.Component {
+class Formula extends PureComponent {
   render() {
     const {count, fragment} = this.props;
     if (count === 0) return null;

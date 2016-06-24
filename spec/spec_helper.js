@@ -5,6 +5,7 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const TestUtils = require('react-addons-test-utils');
 const $ = require('jquery');
+jasmine.MAX_PRETTY_PRINT_DEPTH = 5;
 
 $.fn.simulate = function(eventName, ...args) {
   if (!this.length) {
@@ -28,7 +29,11 @@ TestUtils.Simulate.uncheck = function(node) {
   TestUtils.Simulate.change(node, {target: {checked: false}});
 };
 
-Object.assign(global, {$, jQuery: $, React, ReactDOM});
+TestUtils.Simulate.select = function(node, value) {
+  TestUtils.Simulate.change(node, {target: {value}});
+};
+
+Object.assign(global, {$, jQuery: $, React, ReactDOM, _: jasmine.anything()});
 
 beforeEach(() => {
   $('body').find('#root').remove().end().append('<div id="root"/>');

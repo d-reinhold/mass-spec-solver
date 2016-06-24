@@ -6,114 +6,44 @@ const {Input} = require('pui-react-inputs');
 const {HighlightButton} = require('pui-react-buttons');
 const {Tooltip} = require('pui-react-tooltip');
 const {OverlayTrigger} = require('pui-react-overlay-trigger');
-const range = require('lodash.range');
-const clone = require('lodash.clone');
-const cloneDeep = require('lodash.clonedeep');
-const SolveHelper = require('../helpers/solve_helper');
 const Solutions = require('./solutions');
+const FragmentRow = require('./fragment_row');
+const cloneDeep = require('lodash.clonedeep');
+const {parseNumeric} = require('../helpers/solve_helper');
+const Actions = require('runtime/actions');
 
 class SolvePage extends React.Component {
   solve = () => {
     const {totalMass, maxError, rows, strategy} = this.props;
-    this.props.update({solving: true});
+    Actions.updateSolving(true);
     const formattedRows = rows.map(row => {
       return {weight: parseFloat(row.weight), range: {min: parseInt(row.range.min, 10), max: parseInt(row.range.max, 10)}};
     });
-
     Knapsack.solve(strategy, formattedRows, parseFloat(totalMass), parseFloat(maxError))
-      .then((solutions) => {
-        this.props.update({
-          solutions,
-          solutionRows: cloneDeep(rows),
-          solving: false
-        });
-      }).catch(() => {
-        this.props.update({solving: false});
-      });
-  };
-
-  addRow = () => {
-    this.props.update({rows: [SolveHelper.emptyRow()].concat(this.props.rows)});
-  };
-
-  removeRow = (i) => {
-    let newRows = clone(this.props.rows);
-    newRows.splice(i, 1);
-    this.props.update({rows: newRows});
+    .then((solutions) => {
+      Actions.updateSolutions(solutions, cloneDeep(rows));
+      Actions.updateSolving(false);
+    }).catch(() => {
+      Actions.updateSolving(false);
+    });
   };
 
   updateTotalMass = (e) => {
-    this.props.update({totalMass: SolveHelper.parseNumeric(e.target.value)});
+    Actions.updateTotalMass(parseNumeric(e.target.value));
   };
 
   updateTotalCharge = (e) => {
-    this.props.update({totalCharge: SolveHelper.parseNumeric(e.target.value)});
+    Actions.updateTotalCharge(parseNumeric(e.target.value));
   };
 
   updateMaxError = (e) => {
-    this.props.update({maxError: SolveHelper.parseNumeric(e.target.value)});
-  };
-
-  updateCoef = (i, e) => {
-    let newRows = clone(this.props.rows);
-    newRows[i].coef = e.target.value;
-    newRows[i].weight = SolveHelper.computeWeight(newRows[i]);
-    this.props.update({rows: newRows});
-  };
-
-  updateRange = (i, type, e) => {
-    let newRows = clone(this.props.rows);
-    newRows[i].range[type] = SolveHelper.parseNumeric(e.target.value);
-    this.props.update({rows: newRows});
-  };
-
-  updateCharge = (i, e) => {
-    let newRows = clone(this.props.rows);
-    newRows[i].charge = parseInt(e.target.value, 10);
-    newRows[i].weight = SolveHelper.computeWeight(newRows[i]);
-    this.props.update({rows: newRows});
+    Actions.updateMaxError(parseNumeric(e.target.value));
   };
 
   render() {
-    const {totalMass, totalCharge, maxError, rows, solutions, solutionRows, solving, update} = this.props;
-    let solveDisabled = solving || rows.length === 0 || !rows.every(row => row.weight) || totalMass === 0 || totalMass === '' || maxError === 0 || maxError === '';
+    const {totalMass, totalCharge, maxError, rows, solutions, solutionRows, solving} = this.props;
+    let solveDisabled = solving || rows.length === 0 || !rows.every(row => row.weight && !isNaN(row.weight)) || totalMass === 0 || totalMass === '' || maxError === 0 || maxError === '';
     const numCombinations = rows.map(row => (row.range.max - row.range.min) + 1).reduce((val, product) => val * product, 1);
-    let coefInputs = rows.map((row, rowIndex) => {
-      const chargeOptions = range(8, -9).map(charge => {
-        const chargeLabel = charge > 0 ? `+${charge}` : charge;
-        return <option value={charge} key={charge}>{chargeLabel}</option>;
-      });
-
-      const weightInvalid = isNaN(row.weight) || row.weight === 0;
-      solveDisabled = solveDisabled || weightInvalid;
-
-      return (
-        <div className="fragment" key={row.id}>
-          <div className="form-group row">
-            <div className="form-group col-xs-13">
-              <span className={`shadow-text ${weightInvalid ? 'invalid' : ''}`}>
-                {weightInvalid ? <Icon name="question-circle-o" size="h3"/> : row.weight}
-              </span>
-              <label>Fragment, Element or Mass (g/mol)</label>
-              <input className="form-control" placeholder="Enter a fragment" value={row.coef} onChange={this.updateCoef.bind(this, rowIndex)} autoFocus={rowIndex===0}/>
-            </div>
-            <div className="col-xs-3 form-group">
-              <label>Charge</label>
-              <select className="form-control" value={row.charge} onChange={this.updateCharge.bind(this, rowIndex)}>
-                {chargeOptions}
-              </select>
-            </div>
-            <Input label="Min" className="col-xs-3" value={row.range.min} onChange={this.updateRange.bind(this, rowIndex, 'min')}/>
-            <Input label="Max" className="col-xs-3" value={row.range.max} onChange={this.updateRange.bind(this, rowIndex, 'max')}/>
-            <a href="javascript:void(0)" className="action-icon col-xs-2 ptxxl" onClick={this.removeRow.bind(this, rowIndex)}>
-              <OverlayTrigger placement="top" overlay={<Tooltip>Remove this Fragment</Tooltip>}>
-                <Icon name="close" size="h3"/>
-              </OverlayTrigger>
-            </a>
-          </div>
-        </div>
-      );
-    });
 
     return (
       <form>
@@ -128,20 +58,20 @@ class SolvePage extends React.Component {
           </div>
           <span className="num-combinations">{`${numCombinations} combinations to search.`}</span>
         </div>
-        <Solutions {...{totalCharge, solutions, solutionRows, update}}/>
+        <Solutions {...{totalCharge, solutions, solutionRows}}/>
         <div className="fragments">
           <VelocityTransitionGroup transitionName="slide-forward" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-            <div className="fragment" key="9999">
+            <div className="fragment-row" key="9999">
               <div className="row">
                 <div className="col-xs-22"></div>
-                <a href="javascript:void(0)" className="action-icon col-xs-2 ptm" onClick={this.addRow}>
+                <a href="javascript:void(0)" className="action-icon col-xs-2 ptm" onClick={Actions.addRow}>
                   <OverlayTrigger placement="top" overlay={<Tooltip>Add a Fragment</Tooltip>}>
                     <Icon name="plus-circle" size="h3"/>
                   </OverlayTrigger>
                 </a>
               </div>
             </div>
-            {coefInputs}
+            {rows.map((row, rowIndex) => <FragmentRow {...{row, rowIndex, key: row.id}}/>)}
           </VelocityTransitionGroup>
         </div>
       </form>

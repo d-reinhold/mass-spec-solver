@@ -1,7 +1,7 @@
 const ElementalMassHelper = require('helpers/elemental_mass_helper');
 
 const SolveHelper = {
-  computeWeight({coef, charge}) {
+  computeWeight(coef, charge) {
     let weight = ElementalMassHelper.fragments[coef];
     if (!weight) {
       if (coef.match(/(\d+)/g) && coef.match(/(\d+)/g)[0] === coef) {

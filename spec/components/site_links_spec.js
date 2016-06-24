@@ -1,12 +1,16 @@
 require('../spec_helper');
 
-let SiteLinks, updateSpy;
+let SiteLinks, Actions;
 
 describe('SiteLinks', () => {
   beforeEach(() => {
     SiteLinks = require('components/site_links');
-    updateSpy = jasmine.createSpy('update');
-    let props = {currentPage: 'About', strategy: {algorithm: 'simple', offline: false}, update: updateSpy};
+    Actions = require('runtime/actions');
+    spyOn(Actions, 'navigate');
+    spyOn(Actions, 'updateOffline');
+    spyOn(Actions, 'updateAlgorithm');
+
+    let props = {currentPage: 'About', strategy: {algorithm: 'simple', offline: false}};
     ReactDOM.render(<SiteLinks {...props}/>, root);
   });
 
@@ -24,8 +28,7 @@ describe('SiteLinks', () => {
   describe('clicking a link', () => {
     it('calls the update function', () => {
       $('.site-links a:contains(Examples)').simulate('click');
-      
-      expect(updateSpy).toHaveBeenCalledWith({page: 'Examples'});
+      expect(Actions.navigate).toHaveBeenCalledWith('Examples', _, undefined);
     });
   });
 
@@ -48,7 +51,7 @@ describe('SiteLinks', () => {
       it('calls the update function', () => {
         $('.site-links .dropdown-menu label:contains(Offline) input[type="checkbox"]').simulate('check');
         
-        expect(updateSpy).toHaveBeenCalledWith({strategy: {offline: true, algorithm: 'simple'}});
+        expect(Actions.updateOffline).toHaveBeenCalledWith(true, _);
       });
     });
 
@@ -56,7 +59,7 @@ describe('SiteLinks', () => {
       it('calls the update function', () => {
         $('.site-links .dropdown-menu label:contains(MitM with Binary Search) input[type="radio"]').simulate('change');
         
-        expect(updateSpy).toHaveBeenCalledWith({strategy: {offline: false, algorithm: 'mitm_bs'}});
+        expect(Actions.updateAlgorithm).toHaveBeenCalledWith('mitm_bs', _);
       });
     });
   });

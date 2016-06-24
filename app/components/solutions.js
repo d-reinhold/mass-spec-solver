@@ -1,11 +1,9 @@
 const React = require('react');
+const PureComponent = require('./pure_component');
 const Formula = require('components/formula');
+const {clearSolutions} = require('runtime/actions');
 
-class Solutions extends React.Component {
-  clearSolutions = () => {
-    this.props.update({solutions: null, solutionRows: null});
-  };
-
+class Solutions extends PureComponent {
   render() {
     const {totalCharge, solutions, solutionRows} = this.props;
     let validSolutions = solutions;
@@ -23,7 +21,7 @@ class Solutions extends React.Component {
         {validSolutions &&
           <div className="row">
             <h4>{validSolutions.length === 1 ? 'There is 1 solution.' : `There are ${validSolutions.length} solutions.`}</h4>
-            <a onClick={this.clearSolutions} className="mlm" href="javascript:void(0)">Clear</a>
+            <a onClick={clearSolutions} className="mlm" href="javascript:void(0)">Clear</a>
             <div className="row">
               <div className="col-md-13">Compound</div>
               <div className="col-md-7">Exact Mass (g/mol)</div>
