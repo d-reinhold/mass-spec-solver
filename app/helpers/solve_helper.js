@@ -29,7 +29,7 @@ const SolveHelper = {
   },
 
   parseNumeric(value) {
-    return value.replace(/[^0-9.]+/g, '');
+    return value.replace(/[^0-9.\-]+/g, '');
   },
 
   solveDisabled(solving, rows, totalMass, maxError) {
@@ -43,7 +43,7 @@ const SolveHelper = {
   },
 
   numCombinations(rows) {
-    return rows.map(row => (row.range.max - row.range.min) + 1).reduce((val, product) => val * product, 1);
+    return rows.map(row => (parseInt(row.range.max, 10) - parseInt(row.range.min, 10)) + 1).reduce((val, product) => val * product, 1);
   },
 
   formatRows(rows) {
