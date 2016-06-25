@@ -1,6 +1,16 @@
 const ElementalMassHelper = require('helpers/elemental_mass_helper');
 
 const SolveHelper = {
+  emptyRow() {
+    return {
+      id: Math.floor(Math.random() * 1000),
+      coef: '',
+      range: {min: 0, max: 5},
+      charge: 0,
+      weight: null
+    };
+  },
+
   computeWeight(coef, charge) {
     let weight = ElementalMassHelper.fragments[coef];
     if (!weight) {
@@ -18,16 +28,6 @@ const SolveHelper = {
     return (charge === 0 ? weight : weight - ElementalMassHelper.electron * charge).toPrecision(9);
   },
 
-  emptyRow() {
-    return {
-      id: Math.floor(Math.random() * 1000),
-      coef: '',
-      range: {min: 0, max: 5},
-      charge: 0,
-      weight: null
-    };
-  },
-
   parseNumeric(value) {
     return value.replace(/[^0-9.\-]+/g, '');
   },
@@ -38,7 +38,6 @@ const SolveHelper = {
            !rows.every(row => row.weight && !isNaN(row.weight)) ||
            totalMass === 0 ||
            totalMass === '' ||
-           maxError === 0 ||
            maxError === '';
   },
 
