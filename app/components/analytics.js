@@ -2,7 +2,7 @@ const React = require('react');
 const PureComponent = require('./pure_component');
 let GoogleAnalytics;
 
-if (window.location.hostname === 'mass-spec-solver.cfapps.io') {
+if (window.location.hostname === 'www.mass-spec-solver.com') {
   GoogleAnalytics = require('react-ga');
   GoogleAnalytics.initialize('UA-79749545-1');
 }
