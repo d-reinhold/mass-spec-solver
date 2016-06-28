@@ -16,8 +16,7 @@ class SolvePage extends React.Component {
   solve = () => {
     const {totalMass, maxError, rows, strategy} = this.props;
     Actions.updateSolving(true);
-    Knapsack.solve(strategy, SolveHelper.formatRows(rows), parseFloat(totalMass), parseFloat(maxError))
-    .then((solutions) => {
+    Knapsack.solve(strategy, SolveHelper.formatRows(rows), parseFloat(totalMass), parseFloat(maxError)).then(solutions => {
       Actions.updateSolutions(solutions, cloneDeep(rows));
       Actions.updateSolving(false);
     }).catch(() => {
