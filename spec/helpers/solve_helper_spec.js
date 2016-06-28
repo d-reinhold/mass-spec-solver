@@ -10,15 +10,22 @@ describe('SolvePage', () => {
   describe('#computeWeight', () => {
     describe('when the coef is an element', () => {
       it('computes the correct molecular weight', () => {
-        expect(SolveHelper.computeWeight('C', 7)).toEqual('11.9961598');
         expect(SolveHelper.computeWeight('C', 0)).toEqual('12.0000000');
+        expect(SolveHelper.computeWeight('C', 7)).toEqual('11.9961598');
       });
     });
 
     describe('when the coef is a molecule', () => {
       it('computes the correct molecular weight', () => {
-        expect(SolveHelper.computeWeight('CO2', 7)).toEqual('43.9859898');
-        expect(SolveHelper.computeWeight('CO2', 0)).toEqual('43.9898300');
+        expect(SolveHelper.computeWeight('C6H12O6', 0)).toEqual('180.063390');
+        expect(SolveHelper.computeWeight('C6H12O6', -4)).toEqual('180.065584');
+      });
+    });
+
+    describe('when the coef is a fragment', () => {
+      it('computes the correct molecular weight', () => {
+        expect(SolveHelper.computeWeight('tBuPy', 0)).toEqual('135.104799');
+        expect(SolveHelper.computeWeight('tBuPy', -4)).toEqual('135.106993');
       });
     });
   });

@@ -30,7 +30,7 @@ class Solutions extends PureComponent {
             <ul>
               {validSolutions.sort((a, b) => a.percentError - b.percentError).map(solution => {
                 return (
-                  <li key={solution.params.join('-')} className="row mtm">
+                  <li key={solution.params.join('-')} className="row mtm solution">
                     <div className="col-md-13">
                       {solution.params.map((param, j) => <Formula count={param} fragment={solutionRows[j].coef} key={solutionRows[j].coef}/>)}
                     </div>
