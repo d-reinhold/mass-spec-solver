@@ -17,9 +17,8 @@ const Actions = {
   updateSolving(solvingState) {
     Store.cursor.refine('solving').set(solvingState);
   },
-  updateSolutions(solutions, solutionRows) {
-    Store.cursor.refine('solutions').set(solutions);
-    Store.cursor.refine('solutionRows').set(solutionRows);
+  updateSolutions(solutionSums, rows, totalMass) {
+    Store.cursor.refine('solutions').set({solutionSums, rows, totalMass});
   },
   addRow() {
     Store.cursor.refine('rows').unshift(emptyRow());
@@ -52,7 +51,6 @@ const Actions = {
   },
   clearSolutions() {
     Store.cursor.refine('solutions').set(null);
-    Store.cursor.refine('solutionRows').set(null);
   }
 };
 

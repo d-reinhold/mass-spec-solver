@@ -5,12 +5,14 @@ const {clearSolutions} = require('runtime/actions');
 
 class Solutions extends PureComponent {
   render() {
-    const {totalCharge, solutions, solutionRows} = this.props;
-    let validSolutions = solutions;
-    if (totalCharge && solutions) {
-      validSolutions = solutions.filter(s => {
+    const {totalCharge, solutions} = this.props;
+    if (!solutions) return null;
+    const {solutionSums, rows, totalMass} = solutions;
+    let validSolutions = solutionSums;
+    if (totalCharge && validSolutions) {
+      validSolutions = solutionSums.filter(s => {
         const solutionCharge = s.params.reduce((sum, param, i) => {
-          return sum + param * solutionRows[i].charge;
+          return sum + param * rows[i].charge;
         }, 0);
         return solutionCharge === parseInt(totalCharge, 10);
       });
@@ -25,20 +27,20 @@ class Solutions extends PureComponent {
             <div className="row">
               <div className="col-md-13">Compound</div>
               <div className="col-md-7">Exact Mass (g/mol)</div>
-              <div className="col-md-2">Error</div>
+              <div className="col-md-4">Abs. Error</div>
             </div>
             <ul>
               {validSolutions.sort((a, b) => a.percentError - b.percentError).map(solution => {
                 return (
                   <li key={solution.params.join('-')} className="row mtm solution">
                     <div className="col-md-13">
-                      {solution.params.map((param, j) => <Formula count={param} fragment={solutionRows[j].coef} key={solutionRows[j].coef}/>)}
+                      {solution.params.map((param, j) => <Formula count={param} fragment={rows[j].coef} key={rows[j].coef}/>)}
                     </div>
                     <div className="col-md-7">
                       {solution.sum.toFixed(4)}
                     </div>
                     <div className="col-md-2">
-                      {solution.percentError.toPrecision(3)}%
+                      {Math.abs(solution.sum - totalMass).toFixed(4)}
                     </div>
                   </li>
                 );

@@ -17,7 +17,7 @@ class SolvePage extends React.Component {
     const {totalMass, maxError, rows, strategy} = this.props;
     Actions.updateSolving(true);
     Knapsack.solve(strategy, SolveHelper.formatRows(rows), parseFloat(totalMass), parseFloat(maxError)).then(solutions => {
-      Actions.updateSolutions(solutions, cloneDeep(rows));
+      Actions.updateSolutions(solutions, cloneDeep(rows), parseFloat(totalMass));
       Actions.updateSolving(false);
     }).catch(() => {
       Actions.updateSolving(false);
@@ -37,7 +37,7 @@ class SolvePage extends React.Component {
   };
 
   render() {
-    const {totalMass, totalCharge, maxError, rows, solutions, solutionRows, solving} = this.props;
+    const {totalMass, totalCharge, maxError, rows, solutions, solving} = this.props;
 
     return (
       <form className="solve-page">
@@ -54,7 +54,7 @@ class SolvePage extends React.Component {
           </div>
           <span className="num-combinations">{`${SolveHelper.numCombinations(rows)} combinations to search.`}</span>
         </div>
-        <Solutions {...{totalCharge, solutions, solutionRows}}/>
+        <Solutions {...{totalCharge, solutions}}/>
         <div className="fragments">
           <VelocityTransitionGroup transitionName="slide-forward" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
             <div className="fragment-row" key="9999">

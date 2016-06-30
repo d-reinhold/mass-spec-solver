@@ -28,15 +28,14 @@ describe('SolvePage', () => {
       maxError: '0.02',
       rows: [{id: 0}, {id: 1}, {id: 2}],
       strategy: {},
-      solutions: [],
-      solutionRows: [],
+      solutions: {},
       solving: false
     };
     ReactDOM.render(<SolvePage {...props}/>, root);
   });
 
   it('renders the Solutions component', () => {
-    expect(Solutions).toHaveBeenRenderedWithProps({totalCharge: props.totalCharge, solutions: props.solutions, solutionRows: props.solutionRows});
+    expect(Solutions).toHaveBeenRenderedWithProps({totalCharge: props.totalCharge, solutions: props.solutions});
   });
 
   it('renders a FragmentRow component for each row', () => {
@@ -109,7 +108,7 @@ describe('SolvePage', () => {
       });
 
       it('calls the updateSolutions action with the solutions and rows', () => {
-        expect(Actions.updateSolutions).toHaveBeenCalledWith('some-solutions', props.rows);
+        expect(Actions.updateSolutions).toHaveBeenCalledWith('some-solutions', props.rows, 500.32);
       });
 
       it('sets solving to false', () => {

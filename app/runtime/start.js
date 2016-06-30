@@ -20,7 +20,6 @@ const defaultState = {
   rows: [SolveHelper.emptyRow()],
   page: 'Solve',
   strategy: {offline: false, algorithm: 'mitm_bs'},
-  solutionRows: null,
   solutions: null,
   solving: false,
 };
