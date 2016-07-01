@@ -1,4 +1,10 @@
-$primary-color: #00A598;
+$primary-color: #13a6ca;
+$accent-color: #2a01bd;
+
+a, a:active, a:hover {
+  color: $primary-color;
+  ;
+}
 
 .mass-spec-solver {
   min-width: 400px;
@@ -18,7 +24,8 @@ $primary-color: #00A598;
       padding: 0;
       margin-top: -1px;
       font-weight: 400;
-      &:active, &:hover, &:focus {
+      &, &:active, &:hover, &:focus {
+        color: $primary-color;
         text-decoration: none;
       }
     }
