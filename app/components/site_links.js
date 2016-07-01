@@ -46,7 +46,9 @@ class SiteLinks extends PureComponent {
   render() {
     const {currentPage, strategy, update} = this.props;
     let links = ['Solve', 'Examples', 'About'].map(page => {
-      const link = page === currentPage ? page : <a href="javascript:void(0)" onClick={Actions.navigate.bind(null, page)}>{page}</a>;
+      const link = page === currentPage ?
+        <span className="current-page">{page}</span> :
+        <a href="javascript:void(0)" onClick={Actions.navigate.bind(null, page)}>{page}</a>;
       return <li className="phl" key={page}>{link}</li>;
     });
 
