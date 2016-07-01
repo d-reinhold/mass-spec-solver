@@ -16,6 +16,7 @@ describe('SolvePage', () => {
     spyOn(Actions, 'updateTotalCharge');
     spyOn(Actions, 'updateMaxError');
     spyOn(Actions, 'addRow');
+    spyOn(Actions, 'clearAll');
     spyOn(SolveHelper, 'solveDisabled').and.returnValue(false);
     spyOn(SolveHelper, 'numCombinations').and.returnValue(47);
     spyOn(SolveHelper, 'formatRows').and.returnValue('some-formatted-rows');
@@ -87,6 +88,21 @@ describe('SolvePage', () => {
       expect(Actions.addRow).toHaveBeenCalled();
     });
   });
+
+    describe('clearing all rows', () => {
+      it('calls the clearAll action', () => {
+        $('a:contains(clear all)').simulate('click');
+        expect(Actions.clearAll).toHaveBeenCalled();
+      });
+
+      describe('when there is 1 row', () => {
+        it('does not show the clear all link', () => {
+          props.rows = [{id: 0}];
+          ReactDOM.render(<SolvePage {...props}/>, root);
+          expect('a:contains(clear all)').not.toExist();
+        });
+      });
+    });
 
   describe('clicking solve', () => {
     beforeEach(() => {

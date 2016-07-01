@@ -59,7 +59,8 @@ class SolvePage extends React.Component {
           <VelocityTransitionGroup transitionName="slide-forward" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
             <div className="fragment-row" key="9999">
               <div className="row">
-                <div className="col-xs-22"></div>
+                <span className="col-xs-5 ptm clear-all">{rows.length > 1 && <a href="javascript:void(0)" onClick={Actions.clearAll}>clear fragments</a>}</span>
+                <div className="col-xs-17"></div>
                 <a href="javascript:void(0)" className="action-icon col-xs-2 ptm" onClick={Actions.addRow}>
                   <OverlayTrigger placement="top" overlay={<Tooltip>Add a Fragment</Tooltip>}>
                     <Icon name="plus-circle" size="h3"/>

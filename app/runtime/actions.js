@@ -24,7 +24,15 @@ const Actions = {
     Store.cursor.refine('rows').unshift(emptyRow());
   },
   removeRow(i) {
-    Store.cursor.refine('rows').splice([i, 1]);
+    if (Store.cursor.refine('rows').get().length > 1) {
+      Store.cursor.refine('rows').splice([i, 1]);
+    } else {
+      Store.cursor.refine('rows').set([emptyRow()]);
+    }
+  },
+  clearAll() {
+    Store.cursor.refine('rows').set([emptyRow()]);
+    Store.cursor.refine('solutions').set(null);
   },
   updateTotalMass(totalMass) {
     Store.cursor.refine('totalMass').set(totalMass);
