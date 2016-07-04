@@ -1,10 +1,12 @@
 require('../spec_helper');
 
-let Solutions, props;
+let Solutions, Actions, props;
 
 describe('Solutions', () => {
   beforeEach(() => {
     Solutions = require('components/solutions');
+    Actions = require('runtime/actions');
+    spyOn(Actions, 'clearSolutions');
     props = {
       solutions: {
         totalMass: 171.0539,
@@ -18,13 +20,11 @@ describe('Solutions', () => {
         }]
       }
     };
+    ReactDOM.render(<Solutions {...props}/>, root);
   });
 
   describe('when the total charge is not set', () => {
     it('renders the solutions in the correct order', () => {
-      props.totalCharge = '';
-      ReactDOM.render(<Solutions {...props}/>, root);
-
       expect('.solutions .solution').toHaveLength(2);
 
       expect('.solutions .solution:nth-child(1)').toContainText('(N)3(O)6(H)9(C)2');
@@ -34,6 +34,13 @@ describe('Solutions', () => {
       expect('.solutions .solution:nth-child(2)').toContainText('(O)2(H)7(C)11');
       expect('.solutions .solution:nth-child(2)').toContainText('171.0546');
       expect('.solutions .solution:nth-child(2)').toContainText('0.0007');
+    });
+  });
+
+  describe('clearing the solutions', () => {
+    it('calls the clearSolutions action', () => {
+      $('.solutions a:contains(clear solutions)').simulate('click');
+      expect(Actions.clearSolutions).toHaveBeenCalled();
     });
   });
 

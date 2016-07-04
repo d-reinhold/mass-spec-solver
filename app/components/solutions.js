@@ -1,7 +1,7 @@
 const React = require('react');
 const PureComponent = require('./pure_component');
 const Formula = require('components/formula');
-const {clearSolutions} = require('runtime/actions');
+const Actions = require('runtime/actions');
 
 class Solutions extends PureComponent {
   render() {
@@ -23,7 +23,7 @@ class Solutions extends PureComponent {
         {validSolutions &&
           <div className="row">
             <h4>{validSolutions.length === 1 ? 'There is 1 solution.' : `There are ${validSolutions.length} solutions.`}</h4>
-            <a onClick={clearSolutions} className="mlm" href="javascript:void(0)">clear solutions</a>
+            <a onClick={Actions.clearSolutions} className="mlm" href="javascript:void(0)">clear solutions</a>
             <div className="row">
               <div className="col-md-13">Compound</div>
               <div className="col-md-7">Exact Mass (g/mol)</div>

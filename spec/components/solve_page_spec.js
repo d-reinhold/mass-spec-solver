@@ -91,7 +91,7 @@ describe('SolvePage', () => {
 
     describe('clearing all rows', () => {
       it('calls the clearAll action', () => {
-        $('a:contains(clear all)').simulate('click');
+        $('a:contains(clear fragments)').simulate('click');
         expect(Actions.clearAll).toHaveBeenCalled();
       });
 
@@ -99,7 +99,7 @@ describe('SolvePage', () => {
         it('does not show the clear all link', () => {
           props.rows = [{id: 0}];
           ReactDOM.render(<SolvePage {...props}/>, root);
-          expect('a:contains(clear all)').not.toExist();
+          expect('a:contains(clear fragments)').not.toExist();
         });
       });
     });
