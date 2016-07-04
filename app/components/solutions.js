@@ -1,5 +1,6 @@
 const React = require('react');
 const PureComponent = require('./pure_component');
+const CitationModalBody = require('./citation_modal_body');
 const Formula = require('components/formula');
 const Actions = require('runtime/actions');
 
@@ -23,7 +24,10 @@ class Solutions extends PureComponent {
         {validSolutions &&
           <div className="row">
             <h4>{validSolutions.length === 1 ? 'There is 1 solution.' : `There are ${validSolutions.length} solutions.`}</h4>
-            <a onClick={Actions.clearSolutions} className="mlm" href="javascript:void(0)">clear solutions</a>
+            <ul className="list-inline-divider">
+              <li><a onClick={Actions.clearSolutions} href="javascript:void(0)">clear solutions</a></li>
+              <li><a onClick={Actions.openModal.bind(null, {title: 'Cite Mass Spec Solver', body: <CitationModalBody/>})} href="javascript:void(0)">cite</a></li>
+            </ul>
             <div className="row">
               <div className="col-md-13">Compound</div>
               <div className="col-md-7">Exact Mass (g/mol)</div>

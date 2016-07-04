@@ -7,6 +7,7 @@ describe('Solutions', () => {
     Solutions = require('components/solutions');
     Actions = require('runtime/actions');
     spyOn(Actions, 'clearSolutions');
+    spyOn(Actions, 'openModal');
     props = {
       solutions: {
         totalMass: 171.0539,
@@ -41,6 +42,15 @@ describe('Solutions', () => {
     it('calls the clearSolutions action', () => {
       $('.solutions a:contains(clear solutions)').simulate('click');
       expect(Actions.clearSolutions).toHaveBeenCalled();
+    });
+  });
+
+  describe('citing the solutions', () => {
+    it('opens the citation modal', () => {
+      $('.solutions a:contains(cite)').simulate('click');
+      expect(Actions.openModal).toHaveBeenCalledWith(jasmine.objectContaining({
+        title: 'Cite Mass Spec Solver'
+      }), _, undefined);
     });
   });
 

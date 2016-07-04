@@ -3,6 +3,7 @@ const Analytics = require('./analytics');
 const SolvePage = require('./solve_page');
 const AboutPage = require('./about_page');
 const ExamplesPage = require('./examples_page');
+const Modal = require('./modal');
 const SiteLinks = require('./site_links');
 
 class Application extends React.Component {
@@ -16,6 +17,7 @@ class Application extends React.Component {
         <SiteLinks currentPage={page} strategy={strategy}/>
         <h1>Mass Spec Solver</h1>
         <Page {...this.props}/>
+        <Modal {...this.props.modal}/>
       </div>
     );
   }

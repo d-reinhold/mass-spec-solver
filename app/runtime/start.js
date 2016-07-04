@@ -2,6 +2,7 @@ require('babel-core/register');
 require('babel-polyfill');
 require('pui-css-alignment');
 require('pui-css-whitespace');
+require('pui-css-lists');
 const React = require('react');
 const ReactDOM = require('react-dom');
 const Rison = require('rison');
