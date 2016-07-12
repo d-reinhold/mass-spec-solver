@@ -8,6 +8,13 @@ $accent-color: #2a01bd;
   flex-direction: column;
   align-items: center;
 
+  .action-icon {
+    color: $primary-color;
+  }
+  .action-icon.disabled {
+    color: gray;
+  }
+
   .content {
     flex: 1;
     display: flex;
@@ -15,7 +22,7 @@ $accent-color: #2a01bd;
     align-items: center;
   }
 
-  .clear-all {
+  .fragment-actions li {
     font-size: 14px;
   }
 
@@ -96,12 +103,6 @@ $accent-color: #2a01bd;
           color: lighten(red, 35%);
         }
       }
-      .action-icon {
-        color: $primary-color;
-      }
-      .action-icon.disabled {
-        color: gray;
-      }
 
       &.example-enter {
         opacity: 0.01;
@@ -142,5 +143,9 @@ $accent-color: #2a01bd;
 
   footer li {
     font-size: 14px;
+  }
+
+  .templates-page {
+    max-width: 600px;
   }
 }

@@ -8,6 +8,7 @@ const {Tooltip} = require('pui-react-tooltip');
 const {OverlayTrigger} = require('pui-react-overlay-trigger');
 const Solutions = require('./solutions');
 const FragmentRow = require('./fragment_row');
+const SaveAsTemplateModalBody = require('./save_as_template_modal_body');
 const cloneDeep = require('lodash.clonedeep');
 const SolveHelper = require('../helpers/solve_helper');
 const Actions = require('runtime/actions');
@@ -36,6 +37,14 @@ class SolvePage extends React.Component {
     Actions.updateMaxError(SolveHelper.parseNumeric(e.target.value));
   };
 
+  openSaveAsTemplateModal = () => {
+    Actions.openModal({
+      title: 'Save as Template',
+      confirmAction: Actions.saveAsTemplate,
+      Body: SaveAsTemplateModalBody
+    });
+  };
+
   render() {
     const {totalMass, totalCharge, maxError, rows, solutions, solving} = this.props;
 
@@ -59,8 +68,14 @@ class SolvePage extends React.Component {
           <VelocityTransitionGroup transitionName="slide-forward" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
             <div className="fragment-row" key="9999">
               <div className="row">
-                <span className="col-xs-5 ptm clear-all">{rows.length > 1 && <a href="javascript:void(0)" onClick={Actions.clearAll}>clear fragments</a>}</span>
-                <div className="col-xs-17"></div>
+                <div className="col-xs-22">
+                  {rows.length > 1 &&
+                    <ul className="fragment-actions list-inline-divider mtm mbn">
+                      <li><a href="javascript:void(0)" onClick={Actions.clearAll}>clear fragments</a></li>
+                      <li><a onClick={this.openSaveAsTemplateModal} href="javascript:void(0)">save as template</a></li>
+                    </ul>
+                  }
+                </div>
                 <a href="javascript:void(0)" className="action-icon col-xs-2 ptm" onClick={Actions.addRow}>
                   <OverlayTrigger placement="top" overlay={<Tooltip>Add a Fragment</Tooltip>}>
                     <Icon name="plus-circle" size="h3"/>

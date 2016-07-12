@@ -23,6 +23,9 @@ const defaultState = {
   strategy: {offline: false, algorithm: 'mitm_bs'},
   solutions: null,
   solving: false,
+  modal: {open: false, data: {}},
+  templates: JSON.parse(window.localStorage.getItem('mss-templates') || '{}'),
+  activeTemplateName: null
 };
 const initialState = {...defaultState, ...urlState};
 

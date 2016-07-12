@@ -21,14 +21,14 @@ describe('SiteLinks', () => {
 
   it('renders the other pages as links', () => {
     expect('.site-links a:contains(Solve)').toExist();
-    expect('.site-links a:contains(Examples)').toExist();
+    expect('.site-links a:contains(Templates)').toExist();
     expect('.site-links a:contains(Code)').toExist();
   });
 
   describe('clicking a link', () => {
     it('calls the update function', () => {
-      $('.site-links a:contains(Examples)').simulate('click');
-      expect(Actions.navigate).toHaveBeenCalledWith('Examples', _, undefined);
+      $('.site-links a:contains(Templates)').simulate('click');
+      expect(Actions.navigate).toHaveBeenCalledWith('Templates', _, undefined);
     });
   });
 

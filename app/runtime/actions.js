@@ -12,7 +12,9 @@ const Actions = {
     Store.cursor.refine('strategy', 'algorithm').set(algorithm);
   },
   resetState(state) {
-    Store.cursor.set(state);
+    Object.entries(state).forEach(([key, value]) => {
+      Store.cursor.refine(key).set(value);
+    });
   },
   updateSolving(solvingState) {
     Store.cursor.refine('solving').set(solvingState);
@@ -33,6 +35,7 @@ const Actions = {
   clearAll() {
     Store.cursor.refine('rows').set([emptyRow()]);
     Store.cursor.refine('solutions').set(null);
+    Store.cursor.refine('activeTemplateName').set(null);
   },
   updateTotalMass(totalMass) {
     Store.cursor.refine('totalMass').set(totalMass);
@@ -64,7 +67,25 @@ const Actions = {
     Store.cursor.refine('modal').set({...{open: true, data: {}}, ...modalProps});
   },
   closeModal() {
-    Store.cursor.refine('modal').set({open: false});
+    Store.cursor.refine('modal').set({open: false, data: {}});
+  },
+  saveAsTemplate() {
+    const {totalMass, totalCharge, maxError, rows} = Store.cursor.get();
+    const newTemplateName = Store.cursor.refine('modal', 'data', 'newTemplateName').get() || Store.cursor.refine('activeTemplateName').get();
+    let templates = JSON.parse(window.localStorage.getItem('mss-templates') || '{}');
+    templates[newTemplateName] = {totalMass, totalCharge, maxError, rows};
+    window.localStorage.setItem('mss-templates', JSON.stringify(templates));
+    Store.cursor.refine('templates').set(templates);
+    Actions.closeModal();
+  },
+  removeTemplate(templateName) {
+    Store.cursor.refine('templates').remove(templateName);
+    Store.cursor.flush();
+    window.localStorage.setItem('mss-templates', JSON.stringify(Store.cursor.refine('templates').get()));
+  },
+  updateNewTemplateName(e) {
+    Store.cursor.refine('modal', 'data', 'newTemplateName').set(e.target.value);
+    Store.cursor.refine('activeTemplateName').set(null);
   }
 };
 

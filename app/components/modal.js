@@ -6,10 +6,10 @@ const Actions = require('runtime/actions');
 
 class Modal extends PureComponent {
   render() {
-    const {title, open, Body, confirmAction, confirmText, data} = this.props;
+    const {title, open, Body, confirmAction, confirmText, data} = this.props.modal;
     return (
       <BaseModal title={title} show={open} onHide={Actions.closeModal}>
-        <ModalBody>{Body && <Body {...data}/>}</ModalBody>
+        <ModalBody>{Body && <Body {...{...data, ...this.props}}/>}</ModalBody>
         <ModalFooter>
           <DefaultButton onClick={Actions.closeModal}>Close</DefaultButton>
           {confirmAction && <HighlightButton onClick={confirmAction}>{confirmText || 'Ok'}</HighlightButton>}

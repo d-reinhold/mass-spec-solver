@@ -1,13 +1,13 @@
 require('../spec_helper');
 
-let Modal, Actions, props;
+let Modal, Actions, props = {};
 
 describe('Modal', () => {
   beforeEach(() => {
     Modal = require('components/Modal');
     Actions = require('runtime/actions');
     spyOn(Actions, 'closeModal');
-    props = {
+    props.modal = {
       open: true,
       title: 'Check out this modal!',
       Body: () => <p>Fill this space with important text!</p>
@@ -16,7 +16,7 @@ describe('Modal', () => {
 
   describe('when the modal is closed', () => {
     it('renders nothing', () => {
-      props.open = false;
+      props.modal.open = false;
       ReactDOM.render(<Modal {...props}/>, root);
 
       expect(root).toContainText('');
@@ -25,7 +25,7 @@ describe('Modal', () => {
 
   describe('when the modal is open', () => {
     beforeEach(() => {
-      props.open = true;
+      props.modal.open = true;
       ReactDOM.render(<Modal {...props}/>, root);
     });
     
