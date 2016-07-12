@@ -10,7 +10,7 @@ describe('Modal', () => {
     props = {
       open: true,
       title: 'Check out this modal!',
-      body: 'Fill this space with important text!'
+      Body: () => <p>Fill this space with important text!</p>
     };
   });
 

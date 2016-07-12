@@ -26,7 +26,7 @@ class Solutions extends PureComponent {
             <h4>{validSolutions.length === 1 ? 'There is 1 solution.' : `There are ${validSolutions.length} solutions.`}</h4>
             <ul className="list-inline-divider">
               <li><a onClick={Actions.clearSolutions} href="javascript:void(0)">clear solutions</a></li>
-              <li><a onClick={Actions.openModal.bind(null, {title: 'Cite Mass Spec Solver', body: <CitationModalBody/>})} href="javascript:void(0)">cite</a></li>
+              <li><a onClick={Actions.openModal.bind(null, {title: 'Cite Mass Spec Solver', Body: CitationModalBody})} href="javascript:void(0)">cite</a></li>
             </ul>
             <div className="row">
               <div className="col-md-13">Compound</div>

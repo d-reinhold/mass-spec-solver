@@ -60,12 +60,8 @@ const Actions = {
   clearSolutions() {
     Store.cursor.refine('solutions').set(null);
   },
-  openModal(modal) {
-    Store.cursor.refine('modal').set({
-      open: true,
-      title: modal.title,
-      body: modal.body
-    });
+  openModal(modalProps) {
+    Store.cursor.refine('modal').set({...{open: true, data: {}}, ...modalProps});
   },
   closeModal() {
     Store.cursor.refine('modal').set({open: false});

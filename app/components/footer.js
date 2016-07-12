@@ -10,7 +10,7 @@ class Footer extends PureComponent {
         <ul className="list-inline-divider mbn mtxl">
           <li>© 2016 Dominick Reinhold</li>
           <li><a href="https://github.com/d-reinhold/mass-spec-solver/blob/master/LICENSE" target="_blank">MIT License</a></li>
-          <li><a onClick={Actions.openModal.bind(null, {title: 'Cite Mass Spec Solver', body: <CitationModalBody/>})} href="javascript:void(0)">Cite</a></li>
+          <li><a onClick={Actions.openModal.bind(null, {title: 'Cite Mass Spec Solver', Body: CitationModalBody})} href="javascript:void(0)">Cite</a></li>
         </ul>
       </footer>
     );
