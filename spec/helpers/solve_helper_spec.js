@@ -2,7 +2,7 @@ require('../spec_helper');
 
 let SolveHelper;
 
-describe('SolvePage', () => {
+describe('SolveHelper', () => {
   beforeEach(() => {
     SolveHelper = require('helpers/solve_helper');
   });
@@ -28,6 +28,13 @@ describe('SolvePage', () => {
         expect(SolveHelper.computeWeight('tBuPy', -4)).toEqual('135.106993');
       });
     });
+
+    describe('when the coef is not valid', () => {
+      it('returns null', () => {
+        expect(SolveHelper.computeWeight('s', 0)).toEqual(null);
+        expect(SolveHelper.computeWeight('s', 7)).toEqual(null);
+      });
+    });
   });
 
   describe('#parseNumeric', () => {
@@ -50,7 +57,7 @@ describe('SolvePage', () => {
 
     it('is true if there is a row with no weight', () => {
       expect(SolveHelper.solveDisabled(false, [{weight: null}], 3, 0.02)).toEqual(true);
-      expect(SolveHelper.solveDisabled(false, [{id: '1'}], 3, 0.02)).toEqual(true);
+      expect(SolveHelper.solveDisabled(false, [{id: '1', weight: 0}], 3, 0.02)).toEqual(true);
     });
 
     it('is true if total mass is zero or not set', () => {

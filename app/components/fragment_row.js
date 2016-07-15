@@ -29,7 +29,6 @@ class FragmentRow extends PureComponent {
 
   render() {
     const {row, rowIndex} = this.props;
-    const weightInvalid = !row.weight || isNaN(row.weight);
     const chargeOptions = range(8, -9).map(charge => {
       const chargeLabel = charge > 0 ? `+${charge}` : charge;
       return <option value={charge} key={charge}>{chargeLabel}</option>;
@@ -39,8 +38,8 @@ class FragmentRow extends PureComponent {
       <div className="fragment-row">
         <div className="form-group row">
           <div className="form-group col-xs-13">
-            <span className={`weight ${weightInvalid ? 'invalid' : ''}`}>
-              {weightInvalid ? <Icon name="question-circle-o" size="h3"/> : row.weight}
+            <span className={`weight ${row.weight === null ? 'invalid' : ''}`}>
+              {row.weight === null ? <Icon name="question-circle-o" size="h3"/> : row.weight}
             </span>
             <label>Fragment, Element or Mass (g/mol)</label>
             <input className="coef form-control" placeholder="Enter a fragment" value={row.coef} onChange={this.updateCoef.bind(this, rowIndex)} autoFocus={rowIndex===0}/>

@@ -25,6 +25,7 @@ const SolveHelper = {
         }).reduce((w, sum) => w + sum, 0);
       }
     }
+    if (weight === undefined || isNaN(weight)) return null;
     return (charge === 0 ? weight : weight - ElementalMassHelper.electron * charge).toPrecision(9);
   },
 
@@ -35,7 +36,7 @@ const SolveHelper = {
   solveDisabled(solving, rows, totalMass, maxError) {
     return solving ||
            rows.length === 0 ||
-           rows.some(row => parseFloat(row.weight) === 0 || isNaN(row.weight)) ||
+           rows.some(row => parseFloat(row.weight) === 0 || row.weight === null) ||
            totalMass === 0 ||
            totalMass === '' ||
            maxError === '';
