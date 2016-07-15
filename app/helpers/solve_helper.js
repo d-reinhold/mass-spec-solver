@@ -7,7 +7,7 @@ const SolveHelper = {
       coef: '',
       range: {min: 0, max: 5},
       charge: 0,
-      weight: null
+      weight: 0
     };
   },
 
@@ -35,7 +35,7 @@ const SolveHelper = {
   solveDisabled(solving, rows, totalMass, maxError) {
     return solving ||
            rows.length === 0 ||
-           !rows.every(row => row.weight && !isNaN(row.weight)) ||
+           rows.some(row => parseFloat(row.weight) === 0 || isNaN(row.weight)) ||
            totalMass === 0 ||
            totalMass === '' ||
            maxError === '';
