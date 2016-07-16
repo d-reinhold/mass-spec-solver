@@ -8,6 +8,7 @@ const ElementalMassHelper = {
   },
   elements: {
     H: 1.007825,
+    D: 2.013553,
     He: 4.002603,
     Li: 7.016005,
     Be: 9.012183,
