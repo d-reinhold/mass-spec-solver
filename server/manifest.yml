@@ -1,0 +1,6 @@
+---
+  name: mass-spec-solver-server
+  instances: 1
+  memory: 10MB
+  env:
+    GOPACKAGENAME: mass-spec-solver-server
