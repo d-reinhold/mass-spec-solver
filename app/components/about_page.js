@@ -28,6 +28,7 @@ class AboutPage extends React.Component {
           <p>
             Finally, we could explore <a href="http://www.sciencedirect.com/science/article/pii/S0022000003000060" target="_blank">approximation algorithms</a>: fully polynomial time algorithms which may be nondeterminisic or return solutions with small imprecisions.
           </p>
+          <img style={{margin: '60px auto 0', display: 'block'}} src="/molecule-knapsack.png"/>
       </div>
     );
   }
