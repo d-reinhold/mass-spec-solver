@@ -12,6 +12,7 @@ describe('FragmentRow', () => {
     spyOn(Actions, 'updateCoefAndWeightForRow');
     spyOn(Actions, 'updateChargeAndWeightForRow');
     spyOn(Actions, 'removeRow');
+    spyOn(Actions, 'addRow');
     spyOn(SolveHelper, 'computeWeight');
 
     row = {coef: 'CO2', charge: 2, weight: 43.9898300, range: {min: 0, max: 5}};
@@ -33,6 +34,13 @@ describe('FragmentRow', () => {
 
         expect(SolveHelper.computeWeight).toHaveBeenCalledWith('H2O', 2);
         expect(Actions.updateCoefAndWeightForRow).toHaveBeenCalledWith(47, 'H2O', 'some-weight');
+      });
+    });
+
+    describe('pressing "enter"', () => {
+      it('adds a new row', () => {
+        $('.fragment-row input.coef').simulate('keyUp', {keyCode: 13});
+        expect(Actions.addRow).toHaveBeenCalled();
       });
     });
   });

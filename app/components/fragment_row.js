@@ -17,6 +17,10 @@ class FragmentRow extends PureComponent {
     Actions.updateMinForRow(i, SolveHelper.parseNumeric(e.target.value));
   };
 
+  addRow = (e) => {
+    e.keyCode === 13 && Actions.addRow();
+  };
+
   updateCoef = (i, e) => {
     const coef = e.target.value;
     Actions.updateCoefAndWeightForRow(i, coef, SolveHelper.computeWeight(coef, this.props.row.charge));
@@ -42,7 +46,7 @@ class FragmentRow extends PureComponent {
               {row.weight === null ? <Icon name="question-circle-o" size="h3"/> : row.weight}
             </span>
             <label>Fragment, Element or Mass (g/mol)</label>
-            <input className="coef form-control" placeholder="Enter a fragment" value={row.coef} onChange={this.updateCoef.bind(this, rowIndex)} autoFocus={rowIndex===0}/>
+            <input className="coef form-control" placeholder="Enter a fragment" value={row.coef} onChange={this.updateCoef.bind(this, rowIndex)} autoFocus={rowIndex===0} onKeyUp={this.addRow}/>
           </div>
           <div className="col-xs-3 form-group charge">
             <label>Charge</label>
