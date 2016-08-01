@@ -76,6 +76,7 @@ const Actions = {
     templates[newTemplateName] = {totalMass, totalCharge, maxError, rows};
     window.localStorage.setItem('mss-templates', JSON.stringify(templates));
     Store.cursor.refine('templates').set(templates);
+    Store.cursor.refine('activeTemplateName').set(newTemplateName);
     Actions.closeModal();
   },
   removeTemplate(templateName) {
@@ -85,7 +86,7 @@ const Actions = {
   },
   updateNewTemplateName(e) {
     Store.cursor.refine('modal', 'data', 'newTemplateName').set(e.target.value);
-    Store.cursor.refine('activeTemplateName').set(null);
+    Store.cursor.refine('activeTemplateName').set(e.target.value);
   }
 };
 

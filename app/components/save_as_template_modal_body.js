@@ -9,6 +9,6 @@ module.exports = ({newTemplateName, activeTemplateName}) => (
       These templates are for your eyes only (no data will be sent to a third party server).
       Note: the saved templates will only be accessible from the computer used to save the templates.
     </p>
-    <Input label="Template Name" value={newTemplateName || activeTemplateName} onChange={Actions.updateNewTemplateName} autoFocus={true}/>
+    <Input label="Template Name" value={newTemplateName || activeTemplateName || ''} onChange={Actions.updateNewTemplateName} autoFocus={true}/>
   </div>
 );
