@@ -1,5 +1,5 @@
 const React = require('react');
-const PureComponent = require('./pure_component');
+const PureComponent = require('components/pure_component');
 const {BaseModal, ModalBody, ModalFooter} = require('pui-react-modals');
 const {DefaultButton, HighlightButton} = require('pui-react-buttons');
 const Actions = require('runtime/actions');

@@ -3,7 +3,7 @@ const Analytics = require('./analytics');
 const SolvePage = require('./solve_page');
 const AboutPage = require('./about_page');
 const TemplatesPage = require('./templates_page');
-const Modal = require('./modal');
+const Modal = require('./modals/modal');
 const Footer = require('./footer');
 const SiteLinks = require('./site_links');
 

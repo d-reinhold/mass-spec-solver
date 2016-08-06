@@ -1,6 +1,6 @@
 const React = require('react');
 const PureComponent = require('./pure_component');
-const CitationModalBody = require('./citation_modal_body');
+const CitationModalBody = require('./modals/citation_modal_body');
 const Formula = require('components/formula');
 const Actions = require('runtime/actions');
 

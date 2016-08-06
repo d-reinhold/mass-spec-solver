@@ -4,7 +4,7 @@ let Modal, Actions, props = {};
 
 describe('Modal', () => {
   beforeEach(() => {
-    Modal = require('components/Modal');
+    Modal = require('components/modals/modal');
     Actions = require('runtime/actions');
     spyOn(Actions, 'closeModal');
     props.modal = {
