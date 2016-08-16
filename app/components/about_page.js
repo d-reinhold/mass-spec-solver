@@ -4,30 +4,76 @@ class AboutPage extends React.Component {
   render() {
     return (
       <div>
-        <h3>About</h3>
+        <h2>About</h2>
         <p>
-          When a scientist conducts chemical research, she will not always know the exact composition of the output of a reaction.  In many cases, the major product is known, but the identities of secondary products are unknown.  Knowledge about what these products are can aid in deciding what purification method to choose.  Alternatively, the scientist may be trying a new reaction and not know the identity of any of the products.
-          Either way, the inputs of the reaction are known: the various elements and molecules present during the reaction, as well as their relative amounts and masses. The output of a reaction can be analyzed using a technique called <a href="http://www2.chemistry.msu.edu/faculty/reusch/virttxtjml/spectrpy/massspec/masspec1.htm" target="_blank">Mass Spectrometry</a>. The mass spectrum gives the researcher the exact masses of the molecular components present in the product mixture. The question is, given this information, how does one determine the molecular formula of each molecular component?
+          Mass Spec Solver is an open source web application for chemists. It allows researchers to automate a lot of the manual work that occurs after they conduct a chemical reaction, when they are trying to figure out precisely what they made. As long as the researcher can obtain a mass spectrum of their product mixture, and can input the reactants into the Mass Spec Solver UI, it will compute all possible product molecules with the desired mass. Building the Mass Spec Solver has been an interesting challenge, combining aspects of experimental chemistry, theoretical computer science, web development and cloud computing.
         </p>
+        <h3>Experimental Chemistry</h3>
+        <p>
+          When a scientist conducts chemical research, she will not always know the exact composition of the output of a reaction. In many cases, the major product is known, but the identities of secondary products are unknown. Knowledge about what these products are can aid in purifing the sample.  Alternatively, the scientist may be trying a new reaction and not know the identities of any of the products.
+          </p>
+          <div style={{'text-align': 'center', margin: '20px'}}>
+            <img style={{width: '50%'}} src="/reaction.gif" alt="The exact outputs of a chemical reaction may not be known."/>
+            <div><small>The exact outputs, or products, of a chemical reaction may not be known.</small></div>
+          </div>
+          <p>In any case, the inputs are known: the various elements and molecules present during the reaction, as well as their relative amounts and masses. The output of a reaction can be analyzed using a technique called <a href="http://www2.chemistry.msu.edu/faculty/reusch/virttxtjml/spectrpy/massspec/masspec1.htm" target="_blank">Mass Spectrometry</a>. The mass spectrum gives the researcher the exact masses of the molecular components present in the product mixture. The question is, given this information, how does one determine the molecular formula of each molecular component?
+        </p>
+        <div style={{'text-align': 'center', margin: '20px'}}>
+          <img style={{width: '50%'}} src="/spectrum.png" alt="A mass spectrum. Each peak gives the mass of a molecular component in the sample."/>
+          <div><small>A mass spectrum. Each peak gives the mass of a molecular component in the sample.</small></div>
+        </div>
+          
+        <h3>A Computer Science Problem</h3>
           <p>
-            We can phrase the question in a more abstract way: given a list of numbers (the masses of the available elements), find all subsets that sum to a particular value (the mass of the target molecule in the output). Formalized this way, we find this problem is a special case of a well known problem in Computer Science, the <a href="https://en.wikipedia.org/wiki/Subset_sum_problem" target="_blank">Subset Sum problem</a> (which itself is a special case of the even more popular <a href="https://en.wikipedia.org/wiki/Knapsack_problem" target="_blank">Knapsack problem</a>).
+            We can rephrase the previous question in a more abstract way. Given a list of numbers (the masses of the available elements), can we find all subsets that sum to a particular value (the mass of a product molecule)? Formalized in this way, we find this problem is a special case of a well-known problem in Computer Science, the <a href="https://en.wikipedia.org/wiki/Subset_sum_problem" target="_blank">Subset Sum problem</a> (which itself is a special case of the even more popular <a href="https://en.wikipedia.org/wiki/Knapsack_problem" target="_blank">Knapsack problem</a>).
           </p>
           <p>
-            There are very simple algorithms for solving Knapsack problems; a basic recursive algorithm can be written in  less than 10 lines of code. However, such algorithms are exponential in complexity, meaning that as the size of the inputs grows linearly, the running time of the program grows exponentially. And unfortunately, both Knapsack and Subset Sum are <a href="https://en.wikipedia.org/wiki/NP-completeness" target="_blank">NP-Complete</a> problems, meaning it is very unlikely that polynomial-time algorithms exist which solve these problems exactly. However, there are a few techniques that may improve performance for large problem instances:
+            There are very simple algorithms for solving Knapsack problems; a basic recursive algorithm can be written in  less than 10 lines of code. However, such algorithms are exponential in complexity, meaning that as the size of the inputs grows linearly, the running time of the program grows exponentially. And unfortunately, both Knapsack and Subset Sum are <a href="https://en.wikipedia.org/wiki/NP-completeness" target="_blank">NP-Complete</a> problems, meaning it is very unlikely that polynomial-time algorithms exist which solve these problems exactly. However, through a combination of general and domain-specific optimizations, Mass Spec Solver is able to quickly and correctly generate solutions for most problems generated by chemistry experiments.
+          </p>
+          <h3>First Steps</h3>
+          <p>
+            The initial version of Mass Spec Solver was based on the simple recursive Knapsack algorithm. It worked for problems where the number of available elements in the reaction was relatively small. It allowed us to confirm that our general approach was valid: we could actually solve Mass Spec problems and use the results to validate experiments. But for more complex reactions, the solver couldn't scale. And as it was written in Javascript, it would often lock up the user's browser or even their entire computer, running a computation that might never finish.
+          </p>
+          <p>
+            A simple way to improve performance is to run expensive computations on faster hardware. Our first optimization was to port the basic recursive Knapsack algorithm to <a href="https://aws.amazon.com/lambda" target="_blank">AWS Lambda</a>, which yielded a 2-4x speedup over running the solver on a laptop. Additionally, running the computation on the cloud frees the user's computer to perform other tasks while the computation is running. Since chemists are used to experiments taking a while to complete, this was a satisfactory partial solution that bought us time to refine the core algorithm.
           </p>
 
+        <div style={{'text-align': 'center', margin: '20px'}}>
+          <img style={{width: '40%'}} src="/lambda.jpeg" alt="Lambda is an inexpensive cloud computing solution from Amazon Web Services."/>
+          <div><small>Lambda is an inexpensive cloud computing solution from Amazon Web Services.</small></div>
+        </div>
+
+          <h3>Algorithmic Improvements</h3>
+          <p>There were four avenues we decided to explore to optimize the Mass Spec Solver:
+          <ul>
+            <li>
+              domain specific heuristics that leverage chemistry knowledge to reduce the search space of possible molecules
+            </li>
+            <li>
+              general techniques for improving recursive algorithms, like meet-in-the-middle, <a href="http://www.cise.ufl.edu/~sahni/papers/computingPartitions.pdf" target="_blank">partitioning, </a> or <a href="http://www.diku.dk/~pisinger/95-6.ps" target="_blank">balancing</a>.
+            </li>
+            <li>
+              dynamic programming, which could yield pseudo-polynomial running times, given certain constraints on the input size
+            </li>
+            <li>
+              <a href="http://www.sciencedirect.com/science/article/pii/S0022000003000060" target="_blank">approximation algorithms</a>, which are fully polynomial, but may return a solution with a small amount of error
+            </li>
+          </ul>
+          </p>
+
+          <h4>What Didn't Work</h4>
           <p>
-            First of all, we can try to run the computation on faster hardware. I have ported the simple recursive algorithm to <a href="https://aws.amazon.com/lambda" target="_blank">AWS Lambda</a>, which yielded a 2-4x speedup over running the solver on my laptop.
+            We were unable to take advantage of Knapsack approximation algorithms, for a pretty interesting reason. Solving mass spec problems requires displaying all solutions which "fill the knapsack" to within a configurable delta of its capacity. This is because of the imprecision inherent in all scientific measurements; the mass spec reading might not be exactly equal to the actual mass of the molecule. So searching for just one exact solution is not sufficient. Unfortunately, the speedup of the Knapsack approximation algorithm is derived from considering partial solutions that are “close to each other” as equivalent, resulting in a loss of information that we need in order to display all relevant solutions.
           </p>
           <p>
-            We could try optimizing the recursive algorithm further, either by using domain specific heuristics or general techniques like <a href="http://www.cise.ufl.edu/~sahni/papers/computingPartitions.pdf" target="_blank">partitioning</a> or <a href="http://www.diku.dk/~pisinger/95-6.ps" target="_blank">balancing</a>.
+            Dynamic programming didn't work out either. The canonical DP solution to Knapsack involves allocating and filling a two dimensional matrix of width and height on the order of the capacity of the knapsack and the number of items available, respectively. In mass spec problems, the "knapsack capacity" is generally a large decimal with many significant figures (e.g. 852.9421) which would need to be scaled to avoid loss of precision. The resulting table simply used too much memory.
           </p>
+
+          <h4>What Worked</h4>
           <p>
-            We could switch to a dynamic programming algorithm. This could result in a pseudo-polynomial time algorithm, if we can constrain our inputs sufficiently and handle the increased memory overhead.
+            We were able to design Mass Spec Solver to take advantage of some chemistry specific optimizations. Suppose the target mass we're solving for is 800 g/mol, and we know there was hydrogen present during the reaction. Hydrogen has a very small mass of about 1 g/mol. But we probably don't need to test all combinations of knapsacks with 1H, 2H, ..., 800H. Depending on other conditions of the reaction, it's pretty unlikely that the product molecule has more than 50H. So we allow the chemist to input upper and lower bounds for the number of times each reactant should appear in the target molecule. This reduces the search space immensely and results in improved scalability.
           </p>
-          <p>
-            Finally, we could explore <a href="http://www.sciencedirect.com/science/article/pii/S0022000003000060" target="_blank">approximation algorithms</a>: fully polynomial time algorithms which may be nondeterminisic or return solutions with small imprecisions.
-          </p>
+
           <img style={{margin: '60px auto 0', display: 'block'}} src="/molecule-knapsack.png"/>
       </div>
     );

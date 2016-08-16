@@ -1,0 +1,54 @@
+Hello everyone. My name is Dominick Reinhold, and I'm interviewing here at Tesla for a Senior Javascript engineering position on the MES team. I'm going to be presenting on a personal project that I've been working on for the past few months. The project showcases a number of the skills that make me an ideal candidate for the position, including my strong background in computer science, my substantial experience with modern frameworks for rapid web application development, and my ability to apply these skills to an unrelated field that I have no experience in, like experimental chemistry.
+
+It started with a text:
+
+'how long would it take a computer to search through 10^20 possibilities?'
+
+This is a text I got from my girlfriend Emily about 3 months ago. She's a PhD student at the UC Berkeley College of Chemistry, doing research on Artificial Photosynthesis.
+
+Unfortunately in this case, the number of possibilities was too great: searching through a solution space of that magnitude would take around 10 years. 'What problem are you trying to solve?', I asked, maybe there's a better algorithm than brute force. She explained the following situation:
+
+
+A Chemistry Experiment
+When performing chemistry research, chemical reactions are often performed without the researcher knowing exactly what the result will be. Some inputs are mixed together, (show inputs), a reaction occurs (show arrow), and the result is some mysterious mixture (show mixture). In this case, Emily reacted Cobalt Acetate with Pyridine and Peracetic Acid in water and had no idea what she created (although she knew what she wanted to make!). How can she identify the molecular components in this mixture? 
+
+Well, the masses and proportions of the inputs are known (show amus). The output of a reaction can be analyzed using a technique called Mass Spectrometry. (show mass spectrum). The mass spectrum gives the researcher the exact masses of the molecular components present in the product mixture. So given this information, how does one determine the molecular formula of each molecular component? Emily wanted to brute force all possible recombinations of the inputs; she estimated that, in the worst case, one of her experiments might have 20 independent fragments (elements or molecules that would stick together during hte reaction), and anywhere from 0 to 9 of each might appear in the resulting molecule, yielding 10^20 possibilities to check.
+
+A Familiar Problem
+Emily's problem sounded very familar to me as soon as I heard it, as I'm sure it is familiar to many of you. We can rephrase the problem in a more abstract way: given a list of numbers (the masses of the available elements) and a target value (the mass of a target molecule in the output), find all subsets that sum to the target. Formalized this way, we find this problem is a special case of a well known problem in Computer Science, the Subset Sum problem (which itself is a special case of the even more popular Knapsack problem).
+
+Are we Done?
+Now, there are very simple algorithms for solving Knapsack problems; a basic recursive algorithm can be written in less than 10 lines of code. However, such algorithms are exponential in complexity, meaning that as the size of the inputs grows linearly, the running time of the program grows exponentially. And unfortunately, both Knapsack and Subset Sum are NP-Complete problems, meaning it is very unlikely that polynomial-time algorithms for these problems will ever be discovered. So what could we do?
+
+Keep it simple:
+
+First, I coded up the simple recursive solution anyway. It is easy to write, and it allowed me to verify that I understood Emily's problem correctly. And it actually turned out to be fast enough to solve some of her smaller cases. I wrote a simple user interface in React that allowed Emily to fill in the masses of her input fragments set a desired sum and a max allowed error, and it would display the solutions when processing was complete. Emily was ok with waiting for several minutes for solutions if necessary (many of her actual experiments in the lab take much longer than that!). But for larger problem instances, with many elements present, the website would crash her browser!
+
+Run it on the cloud:
+I knew there were optimizations I could make to the algorithm to improve performance, but the easiest next step was simply to throw more computing power at the problem. My javascript Knapsack function could run natively on AWS Lambda, so it was trivial to turn that function call into an API request, and now the processing no longer slowed down Emily's computer! Additionally, the EC2 instances running the Lambda function were a good 2-4x faster than Emily's laptop.
+
+Algorithmic Improvements
+Offloading the computation to the cloud bought me some more time to improve the core algorithm. Knapsack was proven to be NP-Complete in the 1960s, but research didn't stop there. While I believe there will never be a general polynomial-time exact algorithm for Knapsack problems, there are optimizations available for certain classes of Knapsack problems, ranging from:
+
+- simple domain specific heuristics for branch pruning or constant factor speedups.
+- general techniques for improving recursive algorithms, like meet-in-the-middle/partitioning/balancing.
+- dynamic programming approaches for pseudopolynomial running times on given certain constraints on the input
+- approximation algorithms that are truly polynomial, but may not return an exact value.
+
+I'll address each of these in turn.
+
+# Approximation Algorithms
+
+I first looked into approximations algorithms, as this approach could result in a fully polynomial-time algorithm, albeit one with certain concessions with regard to the accuracy of the solutions. Generally, such an algorithm can be configured with an error parameter e, and a target weight W, and the the guarentee is that if there is at least one way to fill the knapsack to within e of being at capacity, the approx alg will return a solution. 
+However, this quickly led to a dead end, as the mass spec solver must be able to find all solutions that are within some e of the target weight. This requirement actually makes Mass Spec harder than solving the Knapsack problem exactly! There was no way to modify the approximation scheme to find all solutions as the fast implementation of the FPTAS relied on the fact that if two solutions were close enough, you could consider them identical.
+
+Next I considered the classic dynamic programming solution for knapsack. You instantiate a two dimensional array of size WxN, and compute all possible achieveable weights (which subsets could result in a weight of 1, of 2, ..., of n). This quickly fell apart as well, since the target mass is not an integer but a large decimal number. Applying DP to this instance of Knapsack would require scaling the weight by a large factor to prevent a loss of precision, and the table would be so large that we couldn't solve even medium sized problem instances. The DP approach is well known to be ineffective when the weights are large nonintegers.
+
+Finally, we had a breakthough! We were able to apply the meet-in-the-middle technique, which involves solving two halves of the knapsack independently, and iterating through the partial solutions to find a matching solution in the other half. With this approach, the original 47,832,147 combination problem instance that previously took 21 seconds is now completed in 700ms. The runtime was reduced from O(N*2^N) to O(sqrt(N)). As a result, the solver scales much better; problem with 6,699,514,060,800 (6 trillion!!) possible combinations was solved in 8 seconds! This is because most of those 'combinations' tend to be greater than the desired sum in typical mass spec problems and are eliminated.
+
+
+Now that she had a molecular formula for each of the components in the mixture, Emily was able to verify these results with NMR spectroscopy, elemental analysis, single crystal diffraction.
+
+
+
+376620465

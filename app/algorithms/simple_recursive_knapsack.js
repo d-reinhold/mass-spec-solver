@@ -1,7 +1,7 @@
 function recursiveSolve(rows, desiredSum, sum, params, solutions, maxError, maxSum) {
   if (rows.length === 0) {
     if (Math.abs(sum - desiredSum) < maxError) {
-      solutions.push({params: params, sum: sum, percentError: Math.abs(1 - sum / desiredSum) * 100});
+      solutions.push({params, sum});
     }
   } else if (sum < maxSum) {
     for (var param = rows[0].range.min; param <= rows[0].range.max; param++) {
